@@ -365,6 +365,7 @@ API_Documentation.md
 # Environments
 .env
 .env.*
+!.env.example
 
 # Secrets / AppSettings
 appsettings.Development.json
