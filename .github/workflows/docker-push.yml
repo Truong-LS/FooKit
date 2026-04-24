@@ -27,4 +27,3 @@ jobs:
         push: true
         tags: |
           satruong/fookit:BE
-          satruong/fookit:BE-${{ github.run_number }}
