@@ -10,14 +10,18 @@ namespace MyProject.API.Extensions
     {
         public static IServiceCollection AddWebAPIServices(this IServiceCollection services)
         {
-            // CORS Policy
+            // CORS Policy — uses specific origins with credentials for SignalR compatibility
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", policy =>
                 {
-                    policy.AllowAnyOrigin()
+                    policy.WithOrigins(
+                              "http://localhost:3000",
+                              "http://localhost:5173"
+                          )
                           .AllowAnyHeader()
-                          .AllowAnyMethod();
+                          .AllowAnyMethod()
+                          .AllowCredentials();
                 });
             });
 

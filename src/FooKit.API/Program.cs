@@ -1,4 +1,5 @@
 using MyProject.API.Extensions;
+using MyProject.API.Hubs;
 using MyProject.API.Middlewares;
 using MyProject.Application.DependencyInjection;
 using MyProject.Infrastructure.DependencyInjection;
@@ -17,6 +18,7 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 #region Cross-cutting Concerns (Security, Exception Handling...)
 builder.Services.AddGlobalExceptionHandler();
 builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddSignalRServices();
 #endregion
 
 var app = builder.Build();
@@ -48,5 +50,9 @@ app.UseAuthorization();
 app.MapHealthChecks("/health");
 
 app.MapControllers();
+
+#region SignalR Hub Endpoints
+app.MapHub<NotificationHub>("/hubs/notification");
+#endregion
 
 app.Run();

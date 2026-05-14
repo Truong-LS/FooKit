@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -38,6 +39,19 @@ namespace MyProject.API.Extensions
                         if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
                         {
                             context.Response.Headers.Append("Token-Expired", "true");
+                        }
+                        return Task.CompletedTask;
+                    },
+
+                    // SignalR: read token from query string since WebSocket doesn't support Authorization headers
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                        {
+                            context.Token = accessToken;
                         }
                         return Task.CompletedTask;
                     }
