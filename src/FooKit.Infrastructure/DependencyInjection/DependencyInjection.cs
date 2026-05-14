@@ -24,6 +24,8 @@ public static class DependencyInjection
         
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IGoogleAuthProvider, GoogleAuthProvider>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<IVnPayService, VnPayService>();
 
         return services;
     }

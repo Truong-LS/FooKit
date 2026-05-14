@@ -22,6 +22,7 @@ namespace MyProject.Infrastructure.Data.DBContext
         public DbSet<AffiliateProduct> AffiliateProducts { get; set; }
         public DbSet<SuggestionRequest> SuggestionRequests { get; set; }
         public DbSet<SuggestionResult> SuggestionResults { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

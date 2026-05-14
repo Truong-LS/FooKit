@@ -17,6 +17,9 @@ namespace MyProject.Infrastructure.Repositories
         public IUserRepository Users { get; private set; }
         public IRefreshTokenRepository RefreshTokens { get; private set; }
         public IUserLoginRepository UserLogins { get; private set; }
+        public IPaymentRepository Payments { get; private set; }
+        public IGenericRepository<Domain.Entities.SubscriptionPlan> SubscriptionPlans { get; private set; }
+        public IGenericRepository<Domain.Entities.UserSubscription> UserSubscriptions { get; private set; }
 
         public UnitOfWork(FooKitDbContext context)
         {
@@ -24,6 +27,9 @@ namespace MyProject.Infrastructure.Repositories
             Users = new UserRepository(_context);
             RefreshTokens = new RefreshTokenRepository(_context);
             UserLogins = new UserLoginRepository(_context);
+            Payments = new PaymentRepository(_context);
+            SubscriptionPlans = new GenericRepository<Domain.Entities.SubscriptionPlan>(_context);
+            UserSubscriptions = new GenericRepository<Domain.Entities.UserSubscription>(_context);
         }
 
         public async Task<int> SaveChangesAsync()

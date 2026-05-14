@@ -1,3 +1,5 @@
+using MyProject.Domain.Entities;
+
 namespace MyProject.Application.Interfaces.IRepositories
 {
     public interface IUnitOfWork : IDisposable
@@ -5,6 +7,9 @@ namespace MyProject.Application.Interfaces.IRepositories
         IUserRepository Users { get; }
         IRefreshTokenRepository RefreshTokens { get; }
         IUserLoginRepository UserLogins { get; }
+        IPaymentRepository Payments { get; }
+        IGenericRepository<SubscriptionPlan> SubscriptionPlans { get; }
+        IGenericRepository<UserSubscription> UserSubscriptions { get; }
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();
         Task CommitTransactionAsync();
