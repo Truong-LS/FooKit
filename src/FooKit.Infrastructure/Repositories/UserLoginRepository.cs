@@ -7,9 +7,9 @@ namespace MyProject.Infrastructure.Repositories
 {
     public class UserLoginRepository : IUserLoginRepository
     {
-        private readonly ApplicationDbContext _context;
+        private readonly FooKitDbContext _context;
 
-        public UserLoginRepository(ApplicationDbContext context)
+        public UserLoginRepository(FooKitDbContext context)
         {
             _context = context;
         }

@@ -1,4 +1,4 @@
-﻿using MyProject.Domain.Entities;
+using MyProject.Domain.Entities;
 using System.Security.Claims;
 
 namespace MyProject.Application.Interfaces.IServices

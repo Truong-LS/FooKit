@@ -14,7 +14,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration config)
     {
         var connectionString = config["DB_CONNECTION_STRING"];
-        services.AddDbContext<ApplicationDbContext>(options =>
+        services.AddDbContext<FooKitDbContext>(options =>
             options.UseSqlServer(connectionString));
 
         services.AddScoped<IUserRepository, UserRepository>();

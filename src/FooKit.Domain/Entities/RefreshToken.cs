@@ -1,4 +1,4 @@
-﻿namespace MyProject.Domain.Entities
+namespace MyProject.Domain.Entities
 {
     public class RefreshToken
     {

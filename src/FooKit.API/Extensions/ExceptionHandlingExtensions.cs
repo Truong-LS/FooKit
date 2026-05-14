@@ -1,4 +1,4 @@
-﻿using MyProject.API.Middlewares;
+using MyProject.API.Middlewares;
 
 namespace MyProject.API.Extensions
 {

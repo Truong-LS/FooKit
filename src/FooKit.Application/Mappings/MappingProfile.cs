@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using MyProject.Application.DTOs.AuthDtos;
 using MyProject.Domain.Entities;
 

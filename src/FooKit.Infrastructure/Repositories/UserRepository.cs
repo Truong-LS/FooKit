@@ -7,7 +7,7 @@ namespace MyProject.Infrastructure.Repositories
 {
     public class UserRepository : GenericRepository<User>, IUserRepository
     {
-        public UserRepository(ApplicationDbContext context) : base(context) { }
+        public UserRepository(FooKitDbContext context) : base(context) { }
 
         public async Task<User?> GetByUsernameAsync(string username) =>
             await _dbSet.SingleOrDefaultAsync(u => u.Username == username);

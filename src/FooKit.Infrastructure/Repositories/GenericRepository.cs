@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MyProject.Application.Interfaces.IRepositories;
 using MyProject.Infrastructure.Data.DBContext;
 using System.Linq.Expressions;
@@ -7,10 +7,10 @@ namespace MyProject.Infrastructure.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        protected readonly ApplicationDbContext _context;
+        protected readonly FooKitDbContext _context;
         protected readonly DbSet<T> _dbSet;
 
-        public GenericRepository(ApplicationDbContext context)
+        public GenericRepository(FooKitDbContext context)
         {
             _context = context;
             _dbSet = context.Set<T>();

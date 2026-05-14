@@ -1,4 +1,4 @@
-﻿using MyProject.Domain.Entities;
+using MyProject.Domain.Entities;
 
 namespace MyProject.Application.Interfaces.IRepositories
 {

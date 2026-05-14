@@ -1,4 +1,4 @@
-﻿namespace MyProject.Application.DTOs.AuthDtos;
+namespace MyProject.Application.DTOs.AuthDtos;
 
 public record RegisterRequest(string Username, string Password, string ConfirmPassword);
 

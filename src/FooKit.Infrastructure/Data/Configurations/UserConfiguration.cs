@@ -30,6 +30,17 @@ namespace MyProject.Infrastructure.Data.Configurations
             builder.HasIndex(x => x.Email)
                    .IsUnique()
                    .HasFilter("[Email] IS NOT NULL");
+
+            builder.Property(x => x.FullName)
+                   .HasMaxLength(100);
+
+            builder.Property(x => x.CreatedAt)
+                   .IsRequired()
+                   .HasDefaultValueSql("GETUTCDATE()");
+
+            builder.Property(x => x.IsActive)
+                   .IsRequired()
+                   .HasDefaultValue(true);
         }
     }
 }

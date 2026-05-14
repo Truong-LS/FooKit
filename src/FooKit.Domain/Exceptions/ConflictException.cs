@@ -1,4 +1,4 @@
-﻿namespace MyProject.Domain.Exceptions
+namespace MyProject.Domain.Exceptions
 {
     public class ConflictException : Exception
     {

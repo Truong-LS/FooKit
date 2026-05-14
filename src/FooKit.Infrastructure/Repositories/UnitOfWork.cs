@@ -11,14 +11,14 @@ namespace MyProject.Infrastructure.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly ApplicationDbContext _context;
+        private readonly FooKitDbContext _context;
         private IDbContextTransaction? _currentTransaction;
 
         public IUserRepository Users { get; private set; }
         public IRefreshTokenRepository RefreshTokens { get; private set; }
         public IUserLoginRepository UserLogins { get; private set; }
 
-        public UnitOfWork(ApplicationDbContext context)
+        public UnitOfWork(FooKitDbContext context)
         {
             _context = context;
             Users = new UserRepository(_context);
