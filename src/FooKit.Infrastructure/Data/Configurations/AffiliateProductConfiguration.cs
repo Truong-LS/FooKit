@@ -33,6 +33,12 @@ namespace MyProject.Infrastructure.Data.Configurations
             builder.Property(x => x.LastUpdatedPriceAt)
                    .IsRequired();
 
+            builder.Property(x => x.IsActive)
+                   .IsRequired()
+                   .HasDefaultValue(true);
+
+            builder.HasIndex(x => new { x.StandardIngredientId, x.IsActive });
+
             builder.HasOne(x => x.StandardIngredient)
                    .WithMany(s => s.AffiliateProducts)
                    .HasForeignKey(x => x.StandardIngredientId)

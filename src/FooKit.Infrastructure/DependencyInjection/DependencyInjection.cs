@@ -6,6 +6,8 @@ using MyProject.Application.Interfaces.IServices;
 using MyProject.Infrastructure.Data.DBContext;
 using MyProject.Infrastructure.ExternalServices;
 using MyProject.Infrastructure.Repositories;
+using Polly;
+using Polly.Extensions.Http;
 
 namespace MyProject.Infrastructure.DependencyInjection;
 
@@ -27,6 +29,29 @@ public static class DependencyInjection
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IVnPayService, VnPayService>();
 
+        // Register Accesstrade HttpClient with Polly retry policy (exponential backoff)
+        services.AddHttpClient<IProductSearchApiService, AccesstradeProductSearchService>()
+            .AddPolicyHandler(GetRetryPolicy());
+
         return services;
     }
+
+    /// <summary>
+    /// Polly retry policy: retries up to 3 times with exponential backoff
+    /// for transient HTTP errors (5xx) and 429 Too Many Requests.
+    /// </summary>
+    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+    {
+        return HttpPolicyExtensions
+            .HandleTransientHttpError() // Handles HttpRequestException + 5xx
+            .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.TooManyRequests) // 429
+            .WaitAndRetryAsync(
+                retryCount: 3,
+                sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                onRetry: (outcome, timespan, retryAttempt, _) =>
+                {
+                    // Log is available via the typed HttpClient's ILogger
+                });
+    }
 }
+

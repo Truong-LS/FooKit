@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
-using MyProject.API.Filters; // Filters are located in this folder
+using MyProject.API.Filters;
 using FluentValidation.AspNetCore;
 
 namespace MyProject.API.Extensions

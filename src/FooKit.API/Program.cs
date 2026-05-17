@@ -1,6 +1,8 @@
 using MyProject.API.Extensions;
 using MyProject.API.Hubs;
 using MyProject.API.Middlewares;
+using MyProject.API.Workers;
+using MyProject.Application.Configuration;
 using MyProject.Application.DependencyInjection;
 using MyProject.Infrastructure.DependencyInjection;
 using Scalar.AspNetCore;
@@ -19,6 +21,23 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddGlobalExceptionHandler();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddSignalRServices();
+#endregion
+
+#region Background Workers
+builder.Services.Configure<AffiliateWorkerOptions>(
+    builder.Configuration.GetSection(AffiliateWorkerOptions.SectionName));
+
+// Bind AccessKey from environment variable
+builder.Services.PostConfigure<AffiliateWorkerOptions>(options =>
+{
+    var accessKey = builder.Configuration["ACCESSTRADE_ACCESS_KEY"];
+    if (!string.IsNullOrEmpty(accessKey))
+    {
+        options.AccessKey = accessKey;
+    }
+});
+
+builder.Services.AddHostedService<AutoSearchAffiliateWorker>();
 #endregion
 
 var app = builder.Build();
@@ -56,3 +75,4 @@ app.MapHub<NotificationHub>("/hubs/notification");
 #endregion
 
 app.Run();
+

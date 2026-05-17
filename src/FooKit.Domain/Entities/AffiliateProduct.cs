@@ -12,6 +12,7 @@ namespace MyProject.Domain.Entities
         public Money CurrentPrice { get; set; } = Money.Zero();
         public string Platform { get; set; } = string.Empty;
         public DateTime LastUpdatedPriceAt { get; set; }
+        public bool IsActive { get; set; } = true;
 
         public virtual StandardIngredient? StandardIngredient { get; set; }
     }
