@@ -16,5 +16,14 @@ namespace MyProject.Infrastructure.Repositories
             return await _context.Payments
                 .FirstOrDefaultAsync(p => p.TransactionRef == transactionRef);
         }
+
+        public async Task<IEnumerable<Payment>> GetByUserIdAsync(Guid userId)
+        {
+            return await _context.Payments
+                .Include(x => x.SubscriptionPlan)
+                .Where(p => p.UserId == userId)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+        }
     }
 }

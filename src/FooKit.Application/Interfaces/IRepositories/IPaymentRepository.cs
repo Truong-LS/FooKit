@@ -8,5 +8,6 @@ namespace MyProject.Application.Interfaces.IRepositories
         /// Finds a payment by its unique VNPay transaction reference.
         /// </summary>
         Task<Payment?> GetByTransactionRefAsync(string transactionRef);
+        Task<IEnumerable<Payment>> GetByUserIdAsync(Guid userId);
     }
 }

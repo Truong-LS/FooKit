@@ -9,7 +9,7 @@ namespace MyProject.Application.Interfaces.IRepositories
         IUserLoginRepository UserLogins { get; }
         IPaymentRepository Payments { get; }
         IGenericRepository<SubscriptionPlan> SubscriptionPlans { get; }
-        IGenericRepository<UserSubscription> UserSubscriptions { get; }
+        IUserSubscriptionRepository UserSubscriptions { get; }
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();
         Task CommitTransactionAsync();

@@ -19,7 +19,7 @@ namespace MyProject.Infrastructure.Repositories
         public IUserLoginRepository UserLogins { get; private set; }
         public IPaymentRepository Payments { get; private set; }
         public IGenericRepository<Domain.Entities.SubscriptionPlan> SubscriptionPlans { get; private set; }
-        public IGenericRepository<Domain.Entities.UserSubscription> UserSubscriptions { get; private set; }
+        public IUserSubscriptionRepository UserSubscriptions { get; private set; }
 
         public UnitOfWork(FooKitDbContext context)
         {
@@ -29,7 +29,7 @@ namespace MyProject.Infrastructure.Repositories
             UserLogins = new UserLoginRepository(_context);
             Payments = new PaymentRepository(_context);
             SubscriptionPlans = new GenericRepository<Domain.Entities.SubscriptionPlan>(_context);
-            UserSubscriptions = new GenericRepository<Domain.Entities.UserSubscription>(_context);
+            UserSubscriptions = new UserSubscriptionRepository(_context);
         }
 
         public async Task<int> SaveChangesAsync()
