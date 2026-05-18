@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AutoMapper;
 using MyProject.Application.DTOs.SubscriptionDtos;
 using MyProject.Application.Interfaces.IRepositories;
 using MyProject.Application.Interfaces.IServices;
@@ -12,24 +13,18 @@ namespace MyProject.Application.Services
     public class SubscriptionService : ISubscriptionService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public SubscriptionService(IUnitOfWork unitOfWork)
+        public SubscriptionService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<SubscriptionPlanDto>> GetAllPlansAsync()
         {
             var plans = await _unitOfWork.SubscriptionPlans.GetAllAsync();
-            return plans.Select(p => new SubscriptionPlanDto
-            {
-                Id = p.Id,
-                PlanName = p.PlanName,
-                Price = p.Price.Amount,
-                Currency = p.Price.Currency,
-                DurationInDays = p.DurationInDays,
-                Features = string.IsNullOrEmpty(p.FeaturesJson) ? new List<string>() : JsonSerializer.Deserialize<List<string>>(p.FeaturesJson) ?? new List<string>()
-            });
+            return _mapper.Map<IEnumerable<SubscriptionPlanDto>>(plans);
         }
 
         public async Task<UserSubscriptionDto> GetCurrentSubscriptionAsync(Guid userId)
@@ -45,30 +40,13 @@ namespace MyProject.Application.Services
                 };
             }
 
-            return new UserSubscriptionDto
-            {
-                IsPremium = true,
-                PlanName = activeSubscription.SubscriptionPlan?.PlanName ?? "Premium",
-                StartDate = activeSubscription.StartDate,
-                EndDate = activeSubscription.EndDate,
-                DaysRemaining = (int)(activeSubscription.EndDate - DateTime.UtcNow).TotalDays
-            };
+            return _mapper.Map<UserSubscriptionDto>(activeSubscription);
         }
 
         public async Task<IEnumerable<PaymentHistoryDto>> GetPaymentHistoryAsync(Guid userId)
         {
             var payments = await _unitOfWork.Payments.GetByUserIdAsync(userId);
-
-            return payments.Select(p => new PaymentHistoryDto
-            {
-                Id = p.Id,
-                PlanName = p.SubscriptionPlan?.PlanName ?? "Unknown",
-                Amount = p.Amount,
-                Status = p.Status.ToString(),
-                TransactionRef = p.TransactionRef,
-                CreatedAt = p.CreatedAt,
-                PaidAt = p.PaidAt
-            });
+            return _mapper.Map<IEnumerable<PaymentHistoryDto>>(payments);
         }
 
         public async Task CancelSubscriptionAsync(Guid userId)
