@@ -17,7 +17,7 @@ public static class DependencyInjection
     {
         var connectionString = config["DB_CONNECTION_STRING"];
         services.AddDbContext<FooKitDbContext>(options =>
-            options.UseSqlServer(connectionString));
+            options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
