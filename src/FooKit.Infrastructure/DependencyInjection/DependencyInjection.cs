@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyProject.Application.Interfaces.IRepositories;
 using MyProject.Application.Interfaces.IServices;
+using MyProject.Application.Configuration;
 using MyProject.Infrastructure.Data.DBContext;
 using MyProject.Infrastructure.ExternalServices;
 using MyProject.Infrastructure.Repositories;
@@ -30,8 +31,30 @@ public static class DependencyInjection
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IVnPayService, VnPayService>();
 
+        // Register Options
+        services.Configure<SpoonacularOptions>(options =>
+        {
+            options.ApiKey = config["SPOONACULAR_API_KEY"] ?? string.Empty;
+            options.BaseUrl = config["SPOONACULAR_BASE_URL"] ?? "https://api.spoonacular.com";
+        });
+
+        services.Configure<GeminiOptions>(options =>
+        {
+            options.ApiKey = config["GEMINI_API_KEY"] ?? string.Empty;
+            options.BaseUrl = config["GEMINI_BASE_URL"] ?? "https://generativelanguage.googleapis.com";
+            options.Model = config["GEMINI_MODEL"] ?? "gemini-1.5-flash";
+        });
+
         // Register Accesstrade HttpClient with Polly retry policy (exponential backoff)
         services.AddHttpClient<IProductSearchApiService, AccesstradeProductSearchService>()
+            .AddPolicyHandler(GetRetryPolicy());
+
+        // Register Spoonacular Client with Polly retry
+        services.AddHttpClient<ISpoonacularService, SpoonacularService>()
+            .AddPolicyHandler(GetRetryPolicy());
+
+        // Register Gemini Client with Polly retry
+        services.AddHttpClient<IAiMatchingService, GeminiMatchingService>()
             .AddPolicyHandler(GetRetryPolicy());
 
         return services;

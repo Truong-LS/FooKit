@@ -20,6 +20,12 @@ namespace MyProject.Infrastructure.Repositories
         public IPaymentRepository Payments { get; private set; }
         public IGenericRepository<Domain.Entities.SubscriptionPlan> SubscriptionPlans { get; private set; }
         public IUserSubscriptionRepository UserSubscriptions { get; private set; }
+        public IGenericRepository<Domain.Entities.StandardIngredient> StandardIngredients { get; private set; }
+        public IGenericRepository<Domain.Entities.IngredientDictionary> IngredientDictionaries { get; private set; }
+        public IGenericRepository<Domain.Entities.AffiliateProduct> AffiliateProducts { get; private set; }
+        public IGenericRepository<Domain.Entities.DishCache> DishCaches { get; private set; }
+        public IGenericRepository<Domain.Entities.SuggestionRequest> SuggestionRequests { get; private set; }
+        public IGenericRepository<Domain.Entities.SuggestionResult> SuggestionResults { get; private set; }
 
         public UnitOfWork(FooKitDbContext context)
         {
@@ -30,6 +36,12 @@ namespace MyProject.Infrastructure.Repositories
             Payments = new PaymentRepository(_context);
             SubscriptionPlans = new GenericRepository<Domain.Entities.SubscriptionPlan>(_context);
             UserSubscriptions = new UserSubscriptionRepository(_context);
+            StandardIngredients = new GenericRepository<Domain.Entities.StandardIngredient>(_context);
+            IngredientDictionaries = new GenericRepository<Domain.Entities.IngredientDictionary>(_context);
+            AffiliateProducts = new GenericRepository<Domain.Entities.AffiliateProduct>(_context);
+            DishCaches = new GenericRepository<Domain.Entities.DishCache>(_context);
+            SuggestionRequests = new GenericRepository<Domain.Entities.SuggestionRequest>(_context);
+            SuggestionResults = new GenericRepository<Domain.Entities.SuggestionResult>(_context);
         }
 
         public async Task<int> SaveChangesAsync()
