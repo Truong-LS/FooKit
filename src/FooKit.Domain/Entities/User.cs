@@ -20,5 +20,8 @@ namespace MyProject.Domain.Entities
         public virtual ICollection<UserDietaryPreference> DietaryPreferences { get; set; } = new List<UserDietaryPreference>();
         public virtual ICollection<UserTool> Tools { get; set; } = new List<UserTool>();
         public virtual ICollection<SuggestionRequest> SuggestionRequests { get; set; } = new List<SuggestionRequest>();
+        public virtual ICollection<UserAllergy> Allergies { get; set; } = new List<UserAllergy>();
+        public virtual ICollection<UserHistory> UserHistories { get; set; } = new List<UserHistory>();
+        public virtual ICollection<UserHomepageCache> HomepageCaches { get; set; } = new List<UserHomepageCache>();
     }
 }

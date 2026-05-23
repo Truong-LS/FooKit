@@ -75,10 +75,11 @@ namespace MyProject.Application.Services
             // Step 4: Budget Calculation & Affiliate Link Binding
             var suggestedDishes = new List<SuggestedDishDto>();
 
-            // Begin db transaction for logs saving
-            await _unitOfWork.BeginTransactionAsync();
+            // Begin db transaction using execution strategy
             try
             {
+                await _unitOfWork.ExecuteInTransactionAsync(async () =>
+                {
                 // Create Suggestion Request Log
                 var suggestionRequest = new SuggestionRequest
                 {
@@ -188,12 +189,11 @@ namespace MyProject.Application.Services
                     });
                 }
 
-                await _unitOfWork.CommitTransactionAsync();
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Transaction failed while logging suggestions, rolling back.");
-                await _unitOfWork.RollbackTransactionAsync();
                 throw;
             }
 

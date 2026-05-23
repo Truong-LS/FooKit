@@ -23,6 +23,9 @@ namespace MyProject.Infrastructure.Data.DBContext
         public DbSet<SuggestionRequest> SuggestionRequests { get; set; }
         public DbSet<SuggestionResult> SuggestionResults { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<UserHomepageCache> UserHomepageCaches { get; set; }
+        public DbSet<UserHistory> UserHistories { get; set; }
+        public DbSet<UserAllergy> UserAllergies { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

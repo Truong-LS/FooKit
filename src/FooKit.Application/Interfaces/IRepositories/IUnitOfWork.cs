@@ -16,9 +16,13 @@ namespace MyProject.Application.Interfaces.IRepositories
         IGenericRepository<DishCache> DishCaches { get; }
         IGenericRepository<SuggestionRequest> SuggestionRequests { get; }
         IGenericRepository<SuggestionResult> SuggestionResults { get; }
+        IGenericRepository<UserHomepageCache> UserHomepageCaches { get; }
+        IGenericRepository<UserHistory> UserHistories { get; }
+        IGenericRepository<UserAllergy> UserAllergies { get; }
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();
         Task CommitTransactionAsync();
         Task RollbackTransactionAsync();
+        Task ExecuteInTransactionAsync(Func<Task> action);
     }
 }

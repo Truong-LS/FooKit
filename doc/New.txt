@@ -1,0 +1,50 @@
+===================================================================================================
+               IMPLEMENTATION PLAN FOR HOMEPAGE RECIPE SUGGESTION API
+===================================================================================================
+
+Goal: Build a personalized recipe suggestion API for the homepage with a load time of under 1 second, adhering to Clean Architecture.
+
+---------------------------------------------------------------------------------------------------
+1. ENDPOINT INITIALIZATION & SECURITY (API CONTRACT)
+---------------------------------------------------------------------------------------------------
+- HTTP Method: GET
+- Route: `/api/v1/homepage/suggestions`
+- Authentication: JWT Token required. The backend automatically extracts the `UserId` from Claims; do not pass it via the URL.
+- Response Data (JSON): A list of dishes categorized by meal type (Breakfast/Lunch/Dinner), including Affiliate price information and ingredient match rate.
+
+---------------------------------------------------------------------------------------------------
+2. USER PROFILE DATA FETCHING
+---------------------------------------------------------------------------------------------------
+- Kitchen Equipment (UserTools): Air fryer, oven, etc. (Used as a hard filter).
+- Dietary Preferences (UserDietary): Keto, Vegan, etc. (Requires Premium validation).
+- History & Preferences (UserHistory): Avoid suggesting dishes that were recently cooked.
+- Allergies: Strictly exclude allergy-triggering ingredients.
+
+---------------------------------------------------------------------------------------------------
+3. PREMIUM SUBSCRIPTION VALIDATION
+---------------------------------------------------------------------------------------------------
+- Check the `UserSubscription` table. 
+- If the Premium plan has expired: Ignore special dietary filters (Keto/Vegan) and set the `IsPremiumExpired = true` flag in the Response so the Frontend can display an upgrade popup.
+
+---------------------------------------------------------------------------------------------------
+4. CONTEXTUAL TIME RECOGNITION (CONTEXTUAL SORTING)
+---------------------------------------------------------------------------------------------------
+- Read the system time (or device timezone).
+- Adjust display weights: If the app is opened in the morning -> Push the breakfast menu to the top of the JSON array.
+
+---------------------------------------------------------------------------------------------------
+5. CACHING STRATEGY (CACHING PIPELINE) - SUB-SECOND SPEED OPTIMIZATION
+---------------------------------------------------------------------------------------------------
+- STEP 5A (Cache Hit): Check `UserHomepageCache`. If today's menu is already generated -> Return it immediately (0.05s). Do not call Spoonacular/AI.
+- STEP 5B (Cache Miss): If no data exists:
+  + Call Spoonacular to fetch recipes (enforcing equipment/dietary conditions).
+  + Call the AI to match raw ingredients to system IDs.
+  + Query EF Core to retrieve active Affiliate links and prices.
+  + Save the entire result to `UserHomepageCache` with a 24-hour TTL (Time-to-live).
+
+---------------------------------------------------------------------------------------------------
+6. COLD START HANDLING (FOR NEW USERS)
+---------------------------------------------------------------------------------------------------
+- Scenario: A user has just registered and hasn't saved any equipment or preferences yet.
+- Fallback Profile: Set default equipment to "Stove/Pan".
+- Fallback Data: Do not call external APIs. Directly fetch the top 5 trending/popular dishes from the `DishCache` table to display immediately.

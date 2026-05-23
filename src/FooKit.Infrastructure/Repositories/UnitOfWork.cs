@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyProject.Application.Interfaces.IRepositories;
 using MyProject.Infrastructure.Data.DBContext;
@@ -26,6 +27,9 @@ namespace MyProject.Infrastructure.Repositories
         public IGenericRepository<Domain.Entities.DishCache> DishCaches { get; private set; }
         public IGenericRepository<Domain.Entities.SuggestionRequest> SuggestionRequests { get; private set; }
         public IGenericRepository<Domain.Entities.SuggestionResult> SuggestionResults { get; private set; }
+        public IGenericRepository<Domain.Entities.UserHomepageCache> UserHomepageCaches { get; private set; }
+        public IGenericRepository<Domain.Entities.UserHistory> UserHistories { get; private set; }
+        public IGenericRepository<Domain.Entities.UserAllergy> UserAllergies { get; private set; }
 
         public UnitOfWork(FooKitDbContext context)
         {
@@ -42,6 +46,9 @@ namespace MyProject.Infrastructure.Repositories
             DishCaches = new GenericRepository<Domain.Entities.DishCache>(_context);
             SuggestionRequests = new GenericRepository<Domain.Entities.SuggestionRequest>(_context);
             SuggestionResults = new GenericRepository<Domain.Entities.SuggestionResult>(_context);
+            UserHomepageCaches = new GenericRepository<Domain.Entities.UserHomepageCache>(_context);
+            UserHistories = new GenericRepository<Domain.Entities.UserHistory>(_context);
+            UserAllergies = new GenericRepository<Domain.Entities.UserAllergy>(_context);
         }
 
         public async Task<int> SaveChangesAsync()
@@ -97,6 +104,26 @@ namespace MyProject.Infrastructure.Repositories
                     _currentTransaction = null;
                 }
             }
+        }
+
+        public Task ExecuteInTransactionAsync(Func<Task> action)
+        {
+            var strategy = _context.Database.CreateExecutionStrategy();
+            return strategy.ExecuteAsync(async () =>
+            {
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
+                {
+                    await action();
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            });
         }
 
         public void Dispose()
