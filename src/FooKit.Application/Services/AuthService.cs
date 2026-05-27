@@ -42,6 +42,13 @@ namespace MyProject.Application.Services
 
             newUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
+            var userRole = (await _unitOfWork.Roles.FindAsync(r => r.Name == "User")).FirstOrDefault();
+            if (userRole == null)
+            {
+                throw new Exception("Default 'User' role not found in the database.");
+            }
+            newUser.RoleId = userRole.Id;
+
             await _unitOfWork.Users.AddAsync(newUser);
             await _unitOfWork.SaveChangesAsync();
 
@@ -108,11 +115,18 @@ namespace MyProject.Application.Services
             }
 
             // 4. Scenario C: Completely new → Auto-register User + UserLogin
+            var userRole = (await _unitOfWork.Roles.FindAsync(r => r.Name == "User")).FirstOrDefault();
+            if (userRole == null)
+            {
+                throw new Exception("Default 'User' role not found in the database.");
+            }
+
             var newUser = new User
             {
                 Username = email,
                 Email = email,
-                PasswordHash = null
+                PasswordHash = null,
+                RoleId = userRole.Id
             };
 
             await _unitOfWork.Users.AddAsync(newUser);

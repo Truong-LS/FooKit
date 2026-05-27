@@ -212,17 +212,41 @@ namespace MyProject.Application.Services
                 .ToDictionary(id => id.RawKeywordFromApi, id => id.StandardIngredientId, StringComparer.OrdinalIgnoreCase);
 
             var uncachedRawIngredients = new List<string>();
+            var logs = new List<ThirdPartyApiLog>();
 
             foreach (var rawIng in rawIngredients)
             {
                 if (existingDictionaries.TryGetValue(rawIng, out var standardId))
                 {
                     lookup[rawIng] = standardId;
+                    logs.Add(new ThirdPartyApiLog
+                    {
+                        Id = Guid.NewGuid(),
+                        ServiceName = "GoogleGemini",
+                        Endpoint = "TranslateIngredient",
+                        TokensUsed = 0,
+                        WasCacheHit = true,
+                        CreatedAt = DateTime.UtcNow
+                    });
                 }
                 else
                 {
                     uncachedRawIngredients.Add(rawIng);
+                    logs.Add(new ThirdPartyApiLog
+                    {
+                        Id = Guid.NewGuid(),
+                        ServiceName = "GoogleGemini",
+                        Endpoint = "TranslateIngredient",
+                        TokensUsed = 0,
+                        WasCacheHit = false,
+                        CreatedAt = DateTime.UtcNow
+                    });
                 }
+            }
+
+            if (logs.Any())
+            {
+                await _unitOfWork.ThirdPartyApiLogs.AddRangeAsync(logs);
             }
 
             if (uncachedRawIngredients.Any())
@@ -260,9 +284,14 @@ namespace MyProject.Application.Services
 
                 if (aiMatches.Any(m => m.Value.HasValue))
                 {
-                    await _unitOfWork.SaveChangesAsync();
-                    _logger.LogInformation("Successfully saved new mapped ingredient dictionaries to DB cache.");
+                    _logger.LogInformation("Successfully added new mapped ingredient dictionaries to DB cache.");
                 }
+            }
+
+            if (logs.Any())
+            {
+                await _unitOfWork.SaveChangesAsync();
+                _logger.LogInformation("Successfully saved translation logs and updated caches to DB.");
             }
 
             return lookup;

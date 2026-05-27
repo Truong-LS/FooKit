@@ -11,6 +11,8 @@ using Microsoft.Extensions.Options;
 using MyProject.Application.Configuration;
 using MyProject.Application.DTOs.IngredientDtos;
 using MyProject.Application.Interfaces.IServices;
+using MyProject.Domain.Entities;
+using MyProject.Infrastructure.Data.DBContext;
 
 namespace MyProject.Infrastructure.ExternalServices
 {
@@ -19,15 +21,18 @@ namespace MyProject.Infrastructure.ExternalServices
         private readonly HttpClient _httpClient;
         private readonly GeminiOptions _options;
         private readonly ILogger<GeminiMatchingService> _logger;
+        private readonly FooKitDbContext _context;
 
         public GeminiMatchingService(
             HttpClient httpClient,
             IOptions<GeminiOptions> options,
-            ILogger<GeminiMatchingService> _log)
+            ILogger<GeminiMatchingService> _log,
+            FooKitDbContext context)
         {
             _httpClient = httpClient;
             _options = options.Value;
             _logger = _log;
+            _context = context;
         }
 
         public async Task<Dictionary<string, Guid?>> MatchIngredientsAsync(
@@ -124,6 +129,19 @@ namespace MyProject.Infrastructure.ExternalServices
                 var apiResponse = JsonSerializer.Deserialize<GeminiResponse>(responseContent);
                 var aiText = apiResponse?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
 
+                var tokensUsed = apiResponse?.UsageMetadata?.TotalTokenCount ?? 0;
+                var apiLog = new ThirdPartyApiLog
+                {
+                    Id = Guid.NewGuid(),
+                    ServiceName = "GoogleGemini",
+                    Endpoint = "generateContent",
+                    TokensUsed = tokensUsed,
+                    WasCacheHit = false,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.ThirdPartyApiLogs.Add(apiLog);
+                await _context.SaveChangesAsync();
+
                 if (string.IsNullOrWhiteSpace(aiText))
                 {
                     _logger.LogWarning("Gemini API returned an empty response.");
@@ -195,6 +213,21 @@ namespace MyProject.Infrastructure.ExternalServices
         {
             [JsonPropertyName("candidates")]
             public List<GeminiCandidate>? Candidates { get; set; }
+
+            [JsonPropertyName("usageMetadata")]
+            public GeminiUsageMetadata? UsageMetadata { get; set; }
+        }
+
+        private class GeminiUsageMetadata
+        {
+            [JsonPropertyName("promptTokenCount")]
+            public int PromptTokenCount { get; set; }
+
+            [JsonPropertyName("candidatesTokenCount")]
+            public int CandidatesTokenCount { get; set; }
+
+            [JsonPropertyName("totalTokenCount")]
+            public int TotalTokenCount { get; set; }
         }
 
         private class GeminiCandidate

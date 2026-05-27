@@ -1,7 +1,8 @@
 USE [master]
 GO
-/****** Object:  Database [FooKit]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Database [FooKit]    Script Date: 27/05/2026 10:30:00 SA ******/
 CREATE DATABASE [FooKit]
+ 
 GO
 ALTER DATABASE [FooKit] SET COMPATIBILITY_LEVEL = 160
 GO
@@ -78,7 +79,7 @@ ALTER DATABASE [FooKit] SET QUERY_STORE (OPERATION_MODE = READ_WRITE, CLEANUP_PO
 GO
 USE [FooKit]
 GO
-/****** Object:  Table [dbo].[__EFMigrationsHistory]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Table [dbo].[__EFMigrationsHistory]    Script Date: 27/05/2026 10:30:01 SA ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -92,7 +93,7 @@ CREATE TABLE [dbo].[__EFMigrationsHistory](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[AffiliateProducts]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Table [dbo].[AffiliateProducts]    Script Date: 27/05/2026 10:30:01 SA ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -106,13 +107,14 @@ CREATE TABLE [dbo].[AffiliateProducts](
 	[CurrentPriceCurrency] [nvarchar](10) NOT NULL,
 	[Platform] [nvarchar](100) NOT NULL,
 	[LastUpdatedPriceAt] [datetime2](7) NOT NULL,
+	[IsActive] [bit] NOT NULL,
  CONSTRAINT [PK_AffiliateProducts] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[DishCaches]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Table [dbo].[DishCaches]    Script Date: 27/05/2026 10:30:01 SA ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -132,7 +134,7 @@ CREATE TABLE [dbo].[DishCaches](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[IngredientDictionaries]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Table [dbo].[IngredientDictionaries]    Script Date: 27/05/2026 10:30:01 SA ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -147,7 +149,7 @@ CREATE TABLE [dbo].[IngredientDictionaries](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Payments]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Table [dbo].[Payments]    Script Date: 27/05/2026 10:30:01 SA ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -171,7 +173,7 @@ CREATE TABLE [dbo].[Payments](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[RefreshTokens]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Table [dbo].[RefreshTokens]    Script Date: 27/05/2026 10:30:01 SA ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -189,7 +191,22 @@ CREATE TABLE [dbo].[RefreshTokens](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[StandardIngredients]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Table [dbo].[Roles]    Script Date: 27/05/2026 10:30:01 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Roles](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[Description] [nvarchar](250) NULL,
+ CONSTRAINT [PK_Roles] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[StandardIngredients]    Script Date: 27/05/2026 10:30:01 SA ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -204,7 +221,7 @@ CREATE TABLE [dbo].[StandardIngredients](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[SubscriptionPlans]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Table [dbo].[SubscriptionPlans]    Script Date: 27/05/2026 10:30:01 SA ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -222,7 +239,7 @@ CREATE TABLE [dbo].[SubscriptionPlans](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[SuggestionRequests]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Table [dbo].[SuggestionRequests]    Script Date: 27/05/2026 10:30:01 SA ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -241,7 +258,7 @@ CREATE TABLE [dbo].[SuggestionRequests](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[SuggestionResults]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Table [dbo].[SuggestionResults]    Script Date: 27/05/2026 10:30:01 SA ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -259,7 +276,40 @@ CREATE TABLE [dbo].[SuggestionResults](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[UserDietaryPreferences]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Table [dbo].[ThirdPartyApiLogs]    Script Date: 27/05/2026 10:30:01 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ThirdPartyApiLogs](
+	[Id] [uniqueidentifier] NOT NULL,
+	[ServiceName] [nvarchar](max) NOT NULL,
+	[Endpoint] [nvarchar](max) NOT NULL,
+	[TokensUsed] [int] NOT NULL,
+	[WasCacheHit] [bit] NOT NULL,
+	[CreatedAt] [datetime2](7) NOT NULL,
+ CONSTRAINT [PK_ThirdPartyApiLogs] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserAllergies]    Script Date: 27/05/2026 10:30:01 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserAllergies](
+	[Id] [uniqueidentifier] NOT NULL,
+	[UserId] [uniqueidentifier] NOT NULL,
+	[AllergenName] [nvarchar](max) NOT NULL,
+ CONSTRAINT [PK_UserAllergies] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserDietaryPreferences]    Script Date: 27/05/2026 10:30:01 SA ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -274,7 +324,40 @@ CREATE TABLE [dbo].[UserDietaryPreferences](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[UserLogins]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Table [dbo].[UserHistories]    Script Date: 27/05/2026 10:30:01 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserHistories](
+	[Id] [uniqueidentifier] NOT NULL,
+	[UserId] [uniqueidentifier] NOT NULL,
+	[DishName] [nvarchar](max) NOT NULL,
+	[CookedAt] [datetime2](7) NOT NULL,
+ CONSTRAINT [PK_UserHistories] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserHomepageCaches]    Script Date: 27/05/2026 10:30:01 SA ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserHomepageCaches](
+	[Id] [uniqueidentifier] NOT NULL,
+	[UserId] [uniqueidentifier] NOT NULL,
+	[SerializedMenuData] [nvarchar](max) NOT NULL,
+	[ExpirationTime] [datetime2](7) NOT NULL,
+	[CreatedAt] [datetime2](7) NOT NULL,
+ CONSTRAINT [PK_UserHomepageCaches] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserLogins]    Script Date: 27/05/2026 10:30:01 SA ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -291,7 +374,7 @@ CREATE TABLE [dbo].[UserLogins](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Users]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Table [dbo].[Users]    Script Date: 27/05/2026 10:30:01 SA ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -304,13 +387,14 @@ CREATE TABLE [dbo].[Users](
 	[CreatedAt] [datetime2](7) NOT NULL,
 	[FullName] [nvarchar](100) NULL,
 	[IsActive] [bit] NOT NULL,
+	[RoleId] [uniqueidentifier] NOT NULL,
  CONSTRAINT [PK_Users] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[UserSubscriptions]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Table [dbo].[UserSubscriptions]    Script Date: 27/05/2026 10:30:01 SA ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -328,7 +412,7 @@ CREATE TABLE [dbo].[UserSubscriptions](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[UserTools]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Table [dbo].[UserTools]    Script Date: 27/05/2026 10:30:01 SA ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -346,12 +430,32 @@ GO
 INSERT [dbo].[__EFMigrationsHistory] ([MigrationId], [ProductVersion]) VALUES (N'20260424033205_InitialCreate', N'9.0.15')
 INSERT [dbo].[__EFMigrationsHistory] ([MigrationId], [ProductVersion]) VALUES (N'20260514011848_AddRecipeAndAffiliateSchema', N'9.0.16')
 INSERT [dbo].[__EFMigrationsHistory] ([MigrationId], [ProductVersion]) VALUES (N'20260514135025_AddPaymentTable', N'9.0.16')
+INSERT [dbo].[__EFMigrationsHistory] ([MigrationId], [ProductVersion]) VALUES (N'20260523032619_AddHomepageCaching', N'9.0.16')
+INSERT [dbo].[__EFMigrationsHistory] ([MigrationId], [ProductVersion]) VALUES (N'20260527030457_AddAdminDashboardEntities', N'9.0.16')
+INSERT [dbo].[__EFMigrationsHistory] ([MigrationId], [ProductVersion]) VALUES (N'20260527031731_MoveRoleToDedicatedTable', N'9.0.16')
+INSERT [dbo].[__EFMigrationsHistory] ([MigrationId], [ProductVersion]) VALUES (N'20260527032148_updatedatabase', N'9.0.16')
 GO
-INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'c8643c7b-25e3-44cf-9a5b-645850f9f538', N'/OrGZFF2+TjeBRU8Obg7750jgzWjgovLpzZGrkoXCKXG3re8xVhQpea1B7t1DBeV7jWJ4lNP+VXZuyhKSuOHKQ==', CAST(N'2026-04-24T04:02:08.0051731' AS DateTime2), CAST(N'2026-05-01T04:02:08.0051734' AS DateTime2), 0, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
-INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'b525240c-a57c-4c60-9984-69ea33e2b7b9', N'dnXqquL7pvvStRzuN+Tdl80RbTNjJ8z9cb51o5NpeiRp6ByHQdAFC71iLk/sBrhwrOkSsQGa45rXX246WOMp4g==', CAST(N'2026-04-24T03:58:16.7569871' AS DateTime2), CAST(N'2026-05-01T03:58:16.7570737' AS DateTime2), 0, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
-INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'784df542-1464-492c-8a6d-8cfd6e0b7cd1', N'72SLHlDhhPs6eH67ZFXdChqlrea96hdOxuK+nmTg7s01AUO5GyN52hPa1qNdXp6Ube02mv3cQKpfRvXeqm+Huw==', CAST(N'2026-04-24T03:58:32.6849829' AS DateTime2), CAST(N'2026-05-01T03:58:32.6849838' AS DateTime2), 0, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
-INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'80de42da-6143-40b4-b36a-b951b117eaa2', N'pkppXcNog74gdOTjepP53zlPlLAbkM87D3QVN1IUeguHwaeLndcxRhiDRVmd1adT7a05lTgOEBJMJRhQifg86w==', CAST(N'2026-04-24T03:58:37.8378327' AS DateTime2), CAST(N'2026-05-01T03:58:37.8378330' AS DateTime2), 0, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
-INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'f242975a-1aa0-4e4a-b95d-ed8c385d6334', N'mZ/wb31tAo7JWAfGNcqRH/XjI0W3gdFQq4zklotswzMG2lNAoOhwuRoabR4RAi0i0vv7iR/nrplMEbr5yCi1OQ==', CAST(N'2026-04-24T04:34:02.0295714' AS DateTime2), CAST(N'2026-05-01T04:34:02.0296607' AS DateTime2), 0, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
+INSERT [dbo].[DishCaches] ([Id], [ExternalApiId], [Name], [ImageUrl], [DietaryTagsJson], [RequiredToolsJson], [RawIngredientsJson], [LastFetchedAt]) VALUES (N'9df22a44-952d-4623-a37e-2693cfac0464', N'118542121', N'Asparagus and Pea Soup: Real Convenience Food', N'https://img.spoonacular.com/recipes/716406-312x231.jpg', N'["gluten free","dairy free","paleolithic","lacto ovo vegetarian","primal","vegan"]', N'[""]', N'["1 bag of frozen organic asparagus (preferably thawed)","1T EVOO (extra virgin olive oil)","a couple of garlic cloves","1/2 onion","2-3c of frozen organic peas","1 box low-sodium vegetable broth"]', CAST(N'2026-05-23T04:22:59.0134308' AS DateTime2))
+INSERT [dbo].[DishCaches] ([Id], [ExternalApiId], [Name], [ImageUrl], [DietaryTagsJson], [RequiredToolsJson], [RawIngredientsJson], [LastFetchedAt]) VALUES (N'e757104a-daf3-425a-93eb-422b4d6151be', N'-1716784315', N'Red Lentil Soup with Chicken and Turnips', N'https://img.spoonacular.com/recipes/715415-312x231.jpg', N'["gluten free","dairy free"]', N'[""]', N'["additional toppings: diced avocado, micro greens, chopped basil)","3 medium carrots, peeled and diced","3 celery stalks, diced","2 cups fully-cooked chicken breast, shredded (may be omitted for a vegetarian version)","\u00BD cup flat leaf Italian parsley, chopped (plus extra for garnish)","6 cloves of garlic, finely minced","2 tablespoons olive oil","28 ounce-can plum tomatoes, drained and rinsed, chopped","2 cups dried red lentils, rinsed","salt and black pepper, to taste","1 large turnip, peeled and diced","8 cups vegetable stock","1 medium yellow onion, diced"]', CAST(N'2026-05-23T04:22:58.6560845' AS DateTime2))
+INSERT [dbo].[DishCaches] ([Id], [ExternalApiId], [Name], [ImageUrl], [DietaryTagsJson], [RequiredToolsJson], [RawIngredientsJson], [LastFetchedAt]) VALUES (N'1beb8076-8a4e-4b65-bf8d-6d6d02f3b0ec', N'-780260140', N'Garlicky Kale', N'https://img.spoonacular.com/recipes/644387-312x231.jpg', N'["gluten free","dairy free","paleolithic","lacto ovo vegetarian","primal","whole 30","vegan"]', N'[""]', N'["3 tablespoons balsamic vinegar","1 clove garlic, minced","1 bunch curly kale, stems removed and chopped","Olive oil"]', CAST(N'2026-05-23T04:22:59.0243581' AS DateTime2))
+GO
+INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'ab40e9ca-8780-45c1-bdd2-201eb13d51b6', N'rGAkyaoyOs22I1XtjpIthYX1xoMF/eW9tBd/VWIQQBFapy36rEZRziOochPFfHPHaprzkTnzIby6gckI8kf1cw==', CAST(N'2026-05-23T03:49:38.7376500' AS DateTime2), CAST(N'2026-05-30T03:49:38.7376506' AS DateTime2), 1, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
+INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'c1d148ed-f34a-4318-9601-286c89c80f40', N'ymEwhDQJMPY7pIVCE11yYQYfn+7S+ky3eUW7RkesqQ88IsZfL2Y1ML3/gv6bh3KToFT1xYldgPUcJi154EMiSQ==', CAST(N'2026-05-23T04:18:42.5033034' AS DateTime2), CAST(N'2026-05-30T04:18:42.5034249' AS DateTime2), 0, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
+INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'cbdb5505-b8de-4bc3-9b8e-2a85e260c52b', N'TAE3+0ZW8ZaeA41vAqBfOD8Sx6fof+XD0aPwNzb0yTE5c4bGaIBC5pK0xv5ljWO1Rs+VgBIWRaiBIavJae9yrw==', CAST(N'2026-05-23T04:18:48.5823958' AS DateTime2), CAST(N'2026-05-30T04:18:48.5823962' AS DateTime2), 0, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
+INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'c8643c7b-25e3-44cf-9a5b-645850f9f538', N'/OrGZFF2+TjeBRU8Obg7750jgzWjgovLpzZGrkoXCKXG3re8xVhQpea1B7t1DBeV7jWJ4lNP+VXZuyhKSuOHKQ==', CAST(N'2026-04-24T04:02:08.0051731' AS DateTime2), CAST(N'2026-05-01T04:02:08.0051734' AS DateTime2), 1, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
+INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'ebb774f5-411a-4396-bae8-6513959506b0', N'wHMTcHz54u76cmRgvMVGM70gucIRVgE7pYIS5LevfOPfo0boIpGskaAePx0PKi8fjwrUxkr1dlZK8P8rCOe/vA==', CAST(N'2026-05-23T03:50:05.6859792' AS DateTime2), CAST(N'2026-05-30T03:50:05.6859797' AS DateTime2), 1, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
+INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'b525240c-a57c-4c60-9984-69ea33e2b7b9', N'dnXqquL7pvvStRzuN+Tdl80RbTNjJ8z9cb51o5NpeiRp6ByHQdAFC71iLk/sBrhwrOkSsQGa45rXX246WOMp4g==', CAST(N'2026-04-24T03:58:16.7569871' AS DateTime2), CAST(N'2026-05-01T03:58:16.7570737' AS DateTime2), 1, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
+INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'784df542-1464-492c-8a6d-8cfd6e0b7cd1', N'72SLHlDhhPs6eH67ZFXdChqlrea96hdOxuK+nmTg7s01AUO5GyN52hPa1qNdXp6Ube02mv3cQKpfRvXeqm+Huw==', CAST(N'2026-04-24T03:58:32.6849829' AS DateTime2), CAST(N'2026-05-01T03:58:32.6849838' AS DateTime2), 1, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
+INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'c0bc3c59-e508-4af0-b765-906f4ab66e1f', N'/vcBJNKE57kB5PQ1Lz1HCsIV96VzlbxmXuW4QNw6U36ZkliCQ/Y672U3otCnHYiv9XPBbNou8F82YCepihw++A==', CAST(N'2026-05-23T03:43:34.4311793' AS DateTime2), CAST(N'2026-05-30T03:43:34.4313059' AS DateTime2), 1, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
+INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'59104a88-56b7-48fa-a8ba-98d2b7af7ec4', N'N6vYnSFFuaunn/VWMy63GO6JDju+c25Yienx89RCTx4wcDVVkj1d4RafgGlv+08FQeVjx0bzR76mpvzclJkFEQ==', CAST(N'2026-05-23T04:35:27.0554215' AS DateTime2), CAST(N'2026-05-30T04:35:27.0555052' AS DateTime2), 0, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
+INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'759e167f-86c6-4dd8-8085-9a1615a9aec4', N'/7CTGABm4lf1qQUBD00Ig7zWF7UThpIXwOYN9natyM0UMi302slkEOTcIi/58MDZgoXltOLka4OfnsBUTw/hGw==', CAST(N'2026-05-23T03:58:17.3479735' AS DateTime2), CAST(N'2026-05-30T03:58:17.3479739' AS DateTime2), 1, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
+INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'80de42da-6143-40b4-b36a-b951b117eaa2', N'pkppXcNog74gdOTjepP53zlPlLAbkM87D3QVN1IUeguHwaeLndcxRhiDRVmd1adT7a05lTgOEBJMJRhQifg86w==', CAST(N'2026-04-24T03:58:37.8378327' AS DateTime2), CAST(N'2026-05-01T03:58:37.8378330' AS DateTime2), 1, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
+INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'ca70326f-46a1-49f2-a4f4-bce16c36e1da', N'QGysq7FBpbj787ZcUQhiWZLq+rgrAHmT1xlxRob7WvqZ9u2Rm1dV+bfJaYaCQzyHYDPP+uKpHtWlngSWrDEl4w==', CAST(N'2026-05-23T03:56:20.9083433' AS DateTime2), CAST(N'2026-05-30T03:56:20.9083443' AS DateTime2), 1, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
+INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'd0dd42f8-40ab-4e7b-a27b-e2603d5d0bcb', N'6mOsB2j9K+Wda8HqEpNgc/jsa62485M1LhUN8XiygJKZzR7AhQt+hx7C3bvXqdnxfjqAbpL207NeJfHt2a4Mgg==', CAST(N'2026-05-23T03:55:52.4004027' AS DateTime2), CAST(N'2026-05-30T03:55:52.4004031' AS DateTime2), 1, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
+INSERT [dbo].[RefreshTokens] ([Id], [Token], [AddedDate], [ExpiryDate], [IsRevoked], [UserId]) VALUES (N'f242975a-1aa0-4e4a-b95d-ed8c385d6334', N'mZ/wb31tAo7JWAfGNcqRH/XjI0W3gdFQq4zklotswzMG2lNAoOhwuRoabR4RAi0i0vv7iR/nrplMEbr5yCi1OQ==', CAST(N'2026-04-24T04:34:02.0295714' AS DateTime2), CAST(N'2026-05-01T04:34:02.0296607' AS DateTime2), 1, N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
+GO
+INSERT [dbo].[Roles] ([Id], [Name], [Description]) VALUES (N'00000000-0000-0000-0000-000000000001', N'Admin', N'System Administrator role')
+INSERT [dbo].[Roles] ([Id], [Name], [Description]) VALUES (N'00000000-0000-0000-0000-000000000002', N'User', N'Standard user role')
 GO
 INSERT [dbo].[StandardIngredients] ([Id], [Name], [Category]) VALUES (N'd6b1eded-ee6c-4b4d-897c-03106655fff8', N'Sữa đặc', N'Bơ sữa & Khác')
 INSERT [dbo].[StandardIngredients] ([Id], [Name], [Category]) VALUES (N'ecbdcb50-8cca-427b-a9cd-043714235dba', N'Sữa chua', N'Bơ sữa & Khác')
@@ -461,24 +565,34 @@ INSERT [dbo].[StandardIngredients] ([Id], [Name], [Category]) VALUES (N'ca94c59f
 INSERT [dbo].[StandardIngredients] ([Id], [Name], [Category]) VALUES (N'8b1cc7b4-d992-402d-a2c5-fe2116c4fdf1', N'Thịt bò xay', N'Thịt & Hải sản')
 INSERT [dbo].[StandardIngredients] ([Id], [Name], [Category]) VALUES (N'64d03348-5a33-4ace-b650-ffb05053c610', N'Gà nguyên con', N'Thịt & Hải sản')
 GO
+INSERT [dbo].[SuggestionRequests] ([Id], [UserId], [TargetBudgetAmount], [TargetBudgetCurrency], [DietaryRequirement], [AvailableToolsJson], [CreatedAt]) VALUES (N'1fd1fe56-43d4-4e54-94c3-549a12cc2d1c', N'5191a820-c43d-4a37-bf69-2ea5cfed4e69', CAST(1000000.00 AS Decimal(18, 2)), N'VND', N'None', N'[""]', CAST(N'2026-05-23T04:22:58.2628720' AS DateTime2))
+GO
+INSERT [dbo].[SuggestionResults] ([Id], [SuggestionRequestId], [DishCacheId], [TotalEstimatedPriceAmount], [TotalEstimatedPriceCurrency], [CreatedAt]) VALUES (N'aea7b5ec-7d33-4215-9179-1dc62b6b820a', N'1fd1fe56-43d4-4e54-94c3-549a12cc2d1c', N'9df22a44-952d-4623-a37e-2693cfac0464', CAST(0.00 AS Decimal(18, 2)), N'VND', CAST(N'2026-05-23T04:22:59.0163228' AS DateTime2))
+INSERT [dbo].[SuggestionResults] ([Id], [SuggestionRequestId], [DishCacheId], [TotalEstimatedPriceAmount], [TotalEstimatedPriceCurrency], [CreatedAt]) VALUES (N'508a4632-6f5d-421c-8b59-2aa610c78a90', N'1fd1fe56-43d4-4e54-94c3-549a12cc2d1c', N'e757104a-daf3-425a-93eb-422b4d6151be', CAST(0.00 AS Decimal(18, 2)), N'VND', CAST(N'2026-05-23T04:22:58.7502681' AS DateTime2))
+INSERT [dbo].[SuggestionResults] ([Id], [SuggestionRequestId], [DishCacheId], [TotalEstimatedPriceAmount], [TotalEstimatedPriceCurrency], [CreatedAt]) VALUES (N'a9ab5fd6-e391-48a6-8764-eb952eb9b69f', N'1fd1fe56-43d4-4e54-94c3-549a12cc2d1c', N'1beb8076-8a4e-4b65-bf8d-6d6d02f3b0ec', CAST(0.00 AS Decimal(18, 2)), N'VND', CAST(N'2026-05-23T04:22:59.0248274' AS DateTime2))
+GO
+INSERT [dbo].[UserHomepageCaches] ([Id], [UserId], [SerializedMenuData], [ExpirationTime], [CreatedAt]) VALUES (N'393ab46f-8235-4e59-843f-bace9a856294', N'5191a820-c43d-4a37-bf69-2ea5cfed4e69', N'{"IsPremiumExpired":true,"Breakfast":[],"Lunch":[],"Dinner":[{"DishName":"Asparagus and Pea Soup: Real Convenience Food","ImageUrl":"https://img.spoonacular.com/recipes/716406-312x231.jpg","Instructions":"","TotalCost":0,"Ingredients":[]},{"DishName":"Red Lentil Soup with Chicken and Turnips","ImageUrl":"https://img.spoonacular.com/recipes/715415-312x231.jpg","Instructions":"","TotalCost":0,"Ingredients":[]},{"DishName":"Garlicky Kale","ImageUrl":"https://img.spoonacular.com/recipes/644387-312x231.jpg","Instructions":"","TotalCost":0,"Ingredients":[]}]}', CAST(N'2026-05-24T04:25:59.4963864' AS DateTime2), CAST(N'2026-05-23T04:25:59.4540402' AS DateTime2))
+GO
 INSERT [dbo].[UserLogins] ([LoginProvider], [ProviderKey], [ProviderDisplayName], [UserId]) VALUES (N'Google', N'113999591533964420241', N'Google', N'5191a820-c43d-4a37-bf69-2ea5cfed4e69')
 GO
-INSERT [dbo].[Users] ([Id], [Username], [PasswordHash], [Email], [CreatedAt], [FullName], [IsActive]) VALUES (N'5191a820-c43d-4a37-bf69-2ea5cfed4e69', N'nguyenvana', N'$2a$12$fggCzKZcOsxFOdGIacUc5OUG0RpPJUeys6xrdp7Ohh0TMPoRQng72', N'satruong14@gmail.com', CAST(N'2026-05-14T02:01:11.4466667' AS DateTime2), NULL, 1)
-INSERT [dbo].[Users] ([Id], [Username], [PasswordHash], [Email], [CreatedAt], [FullName], [IsActive]) VALUES (N'b4223454-c8bb-4a0d-a064-43873861fad2', N'', N'$2a$11$2kltI7.F98UBQazsOCAZRee25Gv0wPlZ6Q7SGPv9xV2nVlGsogW7G', NULL, CAST(N'2026-05-17T12:19:18.2346110' AS DateTime2), NULL, 1)
+INSERT [dbo].[Users] ([Id], [Username], [PasswordHash], [Email], [CreatedAt], [FullName], [IsActive], [RoleId]) VALUES (N'5191a820-c43d-4a37-bf69-2ea5cfed4e69', N'nguyenvana', N'$2a$12$fggCzKZcOsxFOdGIacUc5OUG0RpPJUeys6xrdp7Ohh0TMPoRQng72', N'satruong14@gmail.com', CAST(N'2026-05-14T02:01:11.4466667' AS DateTime2), NULL, 1, N'00000000-0000-0000-0000-000000000002')
+INSERT [dbo].[Users] ([Id], [Username], [PasswordHash], [Email], [CreatedAt], [FullName], [IsActive], [RoleId]) VALUES (N'b4223454-c8bb-4a0d-a064-43873861fad2', N'', N'$2a$11$2kltI7.F98UBQazsOCAZRee25Gv0wPlZ6Q7SGPv9xV2nVlGsogW7G', NULL, CAST(N'2026-05-17T12:19:18.2346110' AS DateTime2), NULL, 1, N'00000000-0000-0000-0000-000000000002')
+INSERT [dbo].[Users] ([Id], [Username], [PasswordHash], [Email], [CreatedAt], [FullName], [IsActive], [RoleId]) VALUES (N'e22dcd8c-698b-4f0d-be2c-b830e30f485e', N'admin', N'$2a$11$xhY8wyHlDMKNt8ka7UiuiuBoov5MlbDW1klW9SwE.h3qS1BoFHbNe', N'admin@fookit.com', CAST(N'2026-05-27T03:26:30.3400000' AS DateTime2), N'System Admin', 1, N'00000000-0000-0000-0000-000000000001')
 GO
-/****** Object:  Index [IX_AffiliateProducts_StandardIngredientId]    Script Date: 20/05/2026 10:37:16 SA ******/
-CREATE NONCLUSTERED INDEX [IX_AffiliateProducts_StandardIngredientId] ON [dbo].[AffiliateProducts]
+/****** Object:  Index [IX_AffiliateProducts_StandardIngredientId_IsActive]    Script Date: 27/05/2026 10:30:01 SA ******/
+CREATE NONCLUSTERED INDEX [IX_AffiliateProducts_StandardIngredientId_IsActive] ON [dbo].[AffiliateProducts]
 (
-	[StandardIngredientId] ASC
+	[StandardIngredientId] ASC,
+	[IsActive] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_IngredientDictionaries_StandardIngredientId]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Index [IX_IngredientDictionaries_StandardIngredientId]    Script Date: 27/05/2026 10:30:01 SA ******/
 CREATE NONCLUSTERED INDEX [IX_IngredientDictionaries_StandardIngredientId] ON [dbo].[IngredientDictionaries]
 (
 	[StandardIngredientId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_Payments_SubscriptionPlanId]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Index [IX_Payments_SubscriptionPlanId]    Script Date: 27/05/2026 10:30:01 SA ******/
 CREATE NONCLUSTERED INDEX [IX_Payments_SubscriptionPlanId] ON [dbo].[Payments]
 (
 	[SubscriptionPlanId] ASC
@@ -486,49 +600,75 @@ CREATE NONCLUSTERED INDEX [IX_Payments_SubscriptionPlanId] ON [dbo].[Payments]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_Payments_TransactionRef]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Index [IX_Payments_TransactionRef]    Script Date: 27/05/2026 10:30:01 SA ******/
 CREATE UNIQUE NONCLUSTERED INDEX [IX_Payments_TransactionRef] ON [dbo].[Payments]
 (
 	[TransactionRef] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_Payments_UserId]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Index [IX_Payments_UserId]    Script Date: 27/05/2026 10:30:01 SA ******/
 CREATE NONCLUSTERED INDEX [IX_Payments_UserId] ON [dbo].[Payments]
 (
 	[UserId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_RefreshTokens_UserId]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Index [IX_RefreshTokens_UserId]    Script Date: 27/05/2026 10:30:01 SA ******/
 CREATE NONCLUSTERED INDEX [IX_RefreshTokens_UserId] ON [dbo].[RefreshTokens]
 (
 	[UserId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_SuggestionRequests_UserId]    Script Date: 20/05/2026 10:37:16 SA ******/
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_Roles_Name]    Script Date: 27/05/2026 10:30:01 SA ******/
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Roles_Name] ON [dbo].[Roles]
+(
+	[Name] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_SuggestionRequests_UserId]    Script Date: 27/05/2026 10:30:01 SA ******/
 CREATE NONCLUSTERED INDEX [IX_SuggestionRequests_UserId] ON [dbo].[SuggestionRequests]
 (
 	[UserId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_SuggestionResults_DishCacheId]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Index [IX_SuggestionResults_DishCacheId]    Script Date: 27/05/2026 10:30:01 SA ******/
 CREATE NONCLUSTERED INDEX [IX_SuggestionResults_DishCacheId] ON [dbo].[SuggestionResults]
 (
 	[DishCacheId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_SuggestionResults_SuggestionRequestId]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Index [IX_SuggestionResults_SuggestionRequestId]    Script Date: 27/05/2026 10:30:01 SA ******/
 CREATE NONCLUSTERED INDEX [IX_SuggestionResults_SuggestionRequestId] ON [dbo].[SuggestionResults]
 (
 	[SuggestionRequestId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_UserDietaryPreferences_UserId]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Index [IX_UserAllergies_UserId]    Script Date: 27/05/2026 10:30:01 SA ******/
+CREATE NONCLUSTERED INDEX [IX_UserAllergies_UserId] ON [dbo].[UserAllergies]
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_UserDietaryPreferences_UserId]    Script Date: 27/05/2026 10:30:01 SA ******/
 CREATE NONCLUSTERED INDEX [IX_UserDietaryPreferences_UserId] ON [dbo].[UserDietaryPreferences]
 (
 	[UserId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_UserLogins_UserId]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Index [IX_UserHistories_UserId]    Script Date: 27/05/2026 10:30:01 SA ******/
+CREATE NONCLUSTERED INDEX [IX_UserHistories_UserId] ON [dbo].[UserHistories]
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_UserHomepageCaches_UserId]    Script Date: 27/05/2026 10:30:01 SA ******/
+CREATE NONCLUSTERED INDEX [IX_UserHomepageCaches_UserId] ON [dbo].[UserHomepageCaches]
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+/****** Object:  Index [IX_UserLogins_UserId]    Script Date: 27/05/2026 10:30:01 SA ******/
 CREATE NONCLUSTERED INDEX [IX_UserLogins_UserId] ON [dbo].[UserLogins]
 (
 	[UserId] ASC
@@ -536,7 +676,7 @@ CREATE NONCLUSTERED INDEX [IX_UserLogins_UserId] ON [dbo].[UserLogins]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_Users_Email]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Index [IX_Users_Email]    Script Date: 27/05/2026 10:30:01 SA ******/
 CREATE UNIQUE NONCLUSTERED INDEX [IX_Users_Email] ON [dbo].[Users]
 (
 	[Email] ASC
@@ -544,31 +684,39 @@ CREATE UNIQUE NONCLUSTERED INDEX [IX_Users_Email] ON [dbo].[Users]
 WHERE ([Email] IS NOT NULL)
 WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
+/****** Object:  Index [IX_Users_RoleId]    Script Date: 27/05/2026 10:30:01 SA ******/
+CREATE NONCLUSTERED INDEX [IX_Users_RoleId] ON [dbo].[Users]
+(
+	[RoleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_Users_Username]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Index [IX_Users_Username]    Script Date: 27/05/2026 10:30:01 SA ******/
 CREATE UNIQUE NONCLUSTERED INDEX [IX_Users_Username] ON [dbo].[Users]
 (
 	[Username] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_UserSubscriptions_PlanId]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Index [IX_UserSubscriptions_PlanId]    Script Date: 27/05/2026 10:30:01 SA ******/
 CREATE NONCLUSTERED INDEX [IX_UserSubscriptions_PlanId] ON [dbo].[UserSubscriptions]
 (
 	[PlanId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_UserSubscriptions_UserId]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Index [IX_UserSubscriptions_UserId]    Script Date: 27/05/2026 10:30:01 SA ******/
 CREATE NONCLUSTERED INDEX [IX_UserSubscriptions_UserId] ON [dbo].[UserSubscriptions]
 (
 	[UserId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_UserTools_UserId]    Script Date: 20/05/2026 10:37:16 SA ******/
+/****** Object:  Index [IX_UserTools_UserId]    Script Date: 27/05/2026 10:30:01 SA ******/
 CREATE NONCLUSTERED INDEX [IX_UserTools_UserId] ON [dbo].[UserTools]
 (
 	[UserId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[AffiliateProducts] ADD  DEFAULT (CONVERT([bit],(1))) FOR [IsActive]
 GO
 ALTER TABLE [dbo].[Payments] ADD  DEFAULT ((0)) FOR [Status]
 GO
@@ -628,17 +776,40 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[SuggestionResults] CHECK CONSTRAINT [FK_SuggestionResults_SuggestionRequests_SuggestionRequestId]
 GO
+ALTER TABLE [dbo].[UserAllergies]  WITH CHECK ADD  CONSTRAINT [FK_UserAllergies_Users_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[Users] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[UserAllergies] CHECK CONSTRAINT [FK_UserAllergies_Users_UserId]
+GO
 ALTER TABLE [dbo].[UserDietaryPreferences]  WITH CHECK ADD  CONSTRAINT [FK_UserDietaryPreferences_Users_UserId] FOREIGN KEY([UserId])
 REFERENCES [dbo].[Users] ([Id])
 ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[UserDietaryPreferences] CHECK CONSTRAINT [FK_UserDietaryPreferences_Users_UserId]
 GO
+ALTER TABLE [dbo].[UserHistories]  WITH CHECK ADD  CONSTRAINT [FK_UserHistories_Users_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[Users] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[UserHistories] CHECK CONSTRAINT [FK_UserHistories_Users_UserId]
+GO
+ALTER TABLE [dbo].[UserHomepageCaches]  WITH CHECK ADD  CONSTRAINT [FK_UserHomepageCaches_Users_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[Users] ([Id])
+ON DELETE CASCADE
+GO
+ALTER TABLE [dbo].[UserHomepageCaches] CHECK CONSTRAINT [FK_UserHomepageCaches_Users_UserId]
+GO
 ALTER TABLE [dbo].[UserLogins]  WITH CHECK ADD  CONSTRAINT [FK_UserLogins_Users_UserId] FOREIGN KEY([UserId])
 REFERENCES [dbo].[Users] ([Id])
 ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[UserLogins] CHECK CONSTRAINT [FK_UserLogins_Users_UserId]
+GO
+ALTER TABLE [dbo].[Users]  WITH CHECK ADD  CONSTRAINT [FK_Users_Roles_RoleId] FOREIGN KEY([RoleId])
+REFERENCES [dbo].[Roles] ([Id])
+GO
+ALTER TABLE [dbo].[Users] CHECK CONSTRAINT [FK_Users_Roles_RoleId]
 GO
 ALTER TABLE [dbo].[UserSubscriptions]  WITH CHECK ADD  CONSTRAINT [FK_UserSubscriptions_SubscriptionPlans_PlanId] FOREIGN KEY([PlanId])
 REFERENCES [dbo].[SubscriptionPlans] ([Id])

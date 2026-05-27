@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MyProject.Application.Interfaces.IRepositories;
 using MyProject.Application.Interfaces.IServices;
 using MyProject.Application.Configuration;
+using MyProject.Domain.Entities;
 using MyProject.Infrastructure.Data.DBContext;
 using MyProject.Infrastructure.ExternalServices;
 using MyProject.Infrastructure.Repositories;
@@ -30,6 +31,8 @@ public static class DependencyInjection
         services.AddScoped<IGoogleAuthProvider, GoogleAuthProvider>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IVnPayService, VnPayService>();
+
+        services.AddSingleton<WorkerHealthTracker>();
 
         // Register Options
         services.Configure<SpoonacularOptions>(options =>

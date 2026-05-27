@@ -10,6 +10,7 @@ namespace MyProject.Infrastructure.Data.DBContext
         public FooKitDbContext(DbContextOptions<FooKitDbContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<UserLogin> UserLogins { get; set; }
         public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
@@ -26,6 +27,7 @@ namespace MyProject.Infrastructure.Data.DBContext
         public DbSet<UserHomepageCache> UserHomepageCaches { get; set; }
         public DbSet<UserHistory> UserHistories { get; set; }
         public DbSet<UserAllergy> UserAllergies { get; set; }
+        public DbSet<ThirdPartyApiLog> ThirdPartyApiLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

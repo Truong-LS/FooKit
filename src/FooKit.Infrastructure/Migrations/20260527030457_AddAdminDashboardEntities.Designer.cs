@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyProject.Infrastructure.Data.DBContext;
 
@@ -11,9 +12,11 @@ using MyProject.Infrastructure.Data.DBContext;
 namespace FooKit.Infrastructure.Migrations
 {
     [DbContext(typeof(FooKitDbContext))]
-    partial class FooKitDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260527030457_AddAdminDashboardEntities")]
+    partial class AddAdminDashboardEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -213,43 +216,6 @@ namespace FooKit.Infrastructure.Migrations
                     b.ToTable("RefreshTokens", (string)null);
                 });
 
-            modelBuilder.Entity("MyProject.Domain.Entities.Role", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Roles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("00000000-0000-0000-0000-000000000001"),
-                            Description = "System Administrator role",
-                            Name = "Admin"
-                        },
-                        new
-                        {
-                            Id = new Guid("00000000-0000-0000-0000-000000000002"),
-                            Description = "Standard user role",
-                            Name = "User"
-                        });
-                });
-
             modelBuilder.Entity("MyProject.Domain.Entities.StandardIngredient", b =>
                 {
                     b.Property<Guid>("Id")
@@ -406,8 +372,9 @@ namespace FooKit.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -419,8 +386,6 @@ namespace FooKit.Infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique()
                         .HasFilter("[Email] IS NOT NULL");
-
-                    b.HasIndex("RoleId");
 
                     b.HasIndex("Username")
                         .IsUnique();
@@ -784,17 +749,6 @@ namespace FooKit.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MyProject.Domain.Entities.User", b =>
-                {
-                    b.HasOne("MyProject.Domain.Entities.Role", "Role")
-                        .WithMany("Users")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Role");
-                });
-
             modelBuilder.Entity("MyProject.Domain.Entities.UserAllergy", b =>
                 {
                     b.HasOne("MyProject.Domain.Entities.User", "User")
@@ -883,11 +837,6 @@ namespace FooKit.Infrastructure.Migrations
             modelBuilder.Entity("MyProject.Domain.Entities.DishCache", b =>
                 {
                     b.Navigation("SuggestionResults");
-                });
-
-            modelBuilder.Entity("MyProject.Domain.Entities.Role", b =>
-                {
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("MyProject.Domain.Entities.StandardIngredient", b =>

@@ -18,15 +18,18 @@ public class AutoSearchAffiliateWorker : BackgroundService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly AffiliateWorkerOptions _options;
     private readonly ILogger<AutoSearchAffiliateWorker> _logger;
+    private readonly WorkerHealthTracker _tracker;
 
     public AutoSearchAffiliateWorker(
         IServiceScopeFactory scopeFactory,
         IOptions<AffiliateWorkerOptions> options,
-        ILogger<AutoSearchAffiliateWorker> logger)
+        ILogger<AutoSearchAffiliateWorker> logger,
+        WorkerHealthTracker tracker)
     {
         _scopeFactory = scopeFactory;
         _options = options.Value;
         _logger = logger;
+        _tracker = tracker;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,29 +38,39 @@ public class AutoSearchAffiliateWorker : BackgroundService
             "AutoSearchAffiliateWorker started. Interval: {Hours}h, BatchSize: {Batch}, MaxLinks: {Max}",
             _options.IntervalHours, _options.BatchSize, _options.MaxActiveLinksPerIngredient);
 
+        _tracker.IsWorkerRunning = true;
+
         // Wait a short time before the first run to let the app fully start
         await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
 
         using var timer = new PeriodicTimer(TimeSpan.FromHours(_options.IntervalHours));
 
-        // Run immediately on startup, then on each timer tick
-        do
+        try
         {
-            try
+            // Run immediately on startup, then on each timer tick
+            do
             {
-                await ProcessBatchAsync(stoppingToken);
+                try
+                {
+                    await ProcessBatchAsync(stoppingToken);
+                    _tracker.LastAffiliateSyncTime = DateTime.UtcNow;
+                }
+                catch (OperationCanceledException)
+                {
+                    _logger.LogInformation("AutoSearchAffiliateWorker is shutting down.");
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Unhandled error in AutoSearchAffiliateWorker cycle. Will retry next interval.");
+                }
             }
-            catch (OperationCanceledException)
-            {
-                _logger.LogInformation("AutoSearchAffiliateWorker is shutting down.");
-                break;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unhandled error in AutoSearchAffiliateWorker cycle. Will retry next interval.");
-            }
+            while (await timer.WaitForNextTickAsync(stoppingToken));
         }
-        while (await timer.WaitForNextTickAsync(stoppingToken));
+        finally
+        {
+            _tracker.IsWorkerRunning = false;
+        }
     }
 
     /// <summary>

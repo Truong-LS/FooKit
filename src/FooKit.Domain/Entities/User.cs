@@ -13,6 +13,8 @@ namespace MyProject.Domain.Entities
         public string? FullName { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsActive { get; set; } = true;
+        public Guid RoleId { get; set; }
+        public virtual Role Role { get; set; } = null!;
 
         public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
         public virtual ICollection<UserLogin> UserLogins { get; set; } = new List<UserLogin>();

@@ -9,13 +9,16 @@ namespace MyProject.Infrastructure.Repositories
     {
         public UserRepository(FooKitDbContext context) : base(context) { }
 
+        public override async Task<User?> GetByIdAsync(Guid id) =>
+            await _dbSet.Include(u => u.Role).SingleOrDefaultAsync(u => u.Id == id);
+
         public async Task<User?> GetByUsernameAsync(string username) =>
-            await _dbSet.SingleOrDefaultAsync(u => u.Username == username);
+            await _dbSet.Include(u => u.Role).SingleOrDefaultAsync(u => u.Username == username);
 
         public async Task<User?> GetByEmailAsync(string email) =>
-            await _dbSet.SingleOrDefaultAsync(u => u.Email == email);
+            await _dbSet.Include(u => u.Role).SingleOrDefaultAsync(u => u.Email == email);
 
         public async Task<User?> GetByUsernameOrEmailAsync(string identifier) =>
-            await _dbSet.SingleOrDefaultAsync(u => u.Username == identifier || u.Email == identifier);
+            await _dbSet.Include(u => u.Role).SingleOrDefaultAsync(u => u.Username == identifier || u.Email == identifier);
     }
 }

@@ -5,6 +5,7 @@ namespace MyProject.Application.Interfaces.IRepositories
     public interface IUnitOfWork : IDisposable
     {
         IUserRepository Users { get; }
+        IGenericRepository<Role> Roles { get; }
         IRefreshTokenRepository RefreshTokens { get; }
         IUserLoginRepository UserLogins { get; }
         IPaymentRepository Payments { get; }
@@ -19,6 +20,7 @@ namespace MyProject.Application.Interfaces.IRepositories
         IGenericRepository<UserHomepageCache> UserHomepageCaches { get; }
         IGenericRepository<UserHistory> UserHistories { get; }
         IGenericRepository<UserAllergy> UserAllergies { get; }
+        IGenericRepository<ThirdPartyApiLog> ThirdPartyApiLogs { get; }
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();
         Task CommitTransactionAsync();

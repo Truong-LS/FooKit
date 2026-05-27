@@ -11,6 +11,8 @@ using Microsoft.Extensions.Options;
 using MyProject.Application.Configuration;
 using MyProject.Application.DTOs.SpoonacularDtos;
 using MyProject.Application.Interfaces.IServices;
+using MyProject.Domain.Entities;
+using MyProject.Infrastructure.Data.DBContext;
 
 namespace MyProject.Infrastructure.ExternalServices
 {
@@ -19,15 +21,18 @@ namespace MyProject.Infrastructure.ExternalServices
         private readonly HttpClient _httpClient;
         private readonly SpoonacularOptions _options;
         private readonly ILogger<SpoonacularService> _logger;
+        private readonly FooKitDbContext _context;
 
         public SpoonacularService(
             HttpClient httpClient,
             IOptions<SpoonacularOptions> options,
-            ILogger<SpoonacularService> logger)
+            ILogger<SpoonacularService> logger,
+            FooKitDbContext context)
         {
             _httpClient = httpClient;
             _options = options.Value;
             _logger = logger;
+            _context = context;
         }
 
         public async Task<List<SpoonacularRecipeDto>> SearchRecipesAsync(string equipment, string diet, int limit = 3)
@@ -65,6 +70,18 @@ namespace MyProject.Infrastructure.ExternalServices
 
                 var response = await _httpClient.GetAsync(requestUrl);
                 response.EnsureSuccessStatusCode();
+
+                var apiLog = new ThirdPartyApiLog
+                {
+                    Id = Guid.NewGuid(),
+                    ServiceName = "Spoonacular",
+                    Endpoint = "recipes/complexSearch",
+                    TokensUsed = 0,
+                    WasCacheHit = false,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.ThirdPartyApiLogs.Add(apiLog);
+                await _context.SaveChangesAsync();
 
                 var apiResponse = await response.Content.ReadFromJsonAsync<SpoonacularSearchResponse>();
                 if (apiResponse?.Results == null)

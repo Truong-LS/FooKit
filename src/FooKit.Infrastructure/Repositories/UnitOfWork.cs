@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyProject.Application.Interfaces.IRepositories;
+using MyProject.Domain.Entities;
 using MyProject.Infrastructure.Data.DBContext;
 using System;
 using System.Collections.Generic;
@@ -16,39 +17,43 @@ namespace MyProject.Infrastructure.Repositories
         private IDbContextTransaction? _currentTransaction;
 
         public IUserRepository Users { get; private set; }
+        public IGenericRepository<Role> Roles { get; private set; }
         public IRefreshTokenRepository RefreshTokens { get; private set; }
         public IUserLoginRepository UserLogins { get; private set; }
         public IPaymentRepository Payments { get; private set; }
-        public IGenericRepository<Domain.Entities.SubscriptionPlan> SubscriptionPlans { get; private set; }
+        public IGenericRepository<SubscriptionPlan> SubscriptionPlans { get; private set; }
         public IUserSubscriptionRepository UserSubscriptions { get; private set; }
-        public IGenericRepository<Domain.Entities.StandardIngredient> StandardIngredients { get; private set; }
-        public IGenericRepository<Domain.Entities.IngredientDictionary> IngredientDictionaries { get; private set; }
-        public IGenericRepository<Domain.Entities.AffiliateProduct> AffiliateProducts { get; private set; }
-        public IGenericRepository<Domain.Entities.DishCache> DishCaches { get; private set; }
-        public IGenericRepository<Domain.Entities.SuggestionRequest> SuggestionRequests { get; private set; }
-        public IGenericRepository<Domain.Entities.SuggestionResult> SuggestionResults { get; private set; }
-        public IGenericRepository<Domain.Entities.UserHomepageCache> UserHomepageCaches { get; private set; }
-        public IGenericRepository<Domain.Entities.UserHistory> UserHistories { get; private set; }
-        public IGenericRepository<Domain.Entities.UserAllergy> UserAllergies { get; private set; }
+        public IGenericRepository<StandardIngredient> StandardIngredients { get; private set; }
+        public IGenericRepository<IngredientDictionary> IngredientDictionaries { get; private set; }
+        public IGenericRepository<AffiliateProduct> AffiliateProducts { get; private set; }
+        public IGenericRepository<DishCache> DishCaches { get; private set; }
+        public IGenericRepository<SuggestionRequest> SuggestionRequests { get; private set; }
+        public IGenericRepository<SuggestionResult> SuggestionResults { get; private set; }
+        public IGenericRepository<UserHomepageCache> UserHomepageCaches { get; private set; }
+        public IGenericRepository<UserHistory> UserHistories { get; private set; }
+        public IGenericRepository<UserAllergy> UserAllergies { get; private set; }
+        public IGenericRepository<ThirdPartyApiLog> ThirdPartyApiLogs { get; private set; }
 
         public UnitOfWork(FooKitDbContext context)
         {
             _context = context;
             Users = new UserRepository(_context);
+            Roles = new GenericRepository<Role>(_context);
             RefreshTokens = new RefreshTokenRepository(_context);
             UserLogins = new UserLoginRepository(_context);
             Payments = new PaymentRepository(_context);
-            SubscriptionPlans = new GenericRepository<Domain.Entities.SubscriptionPlan>(_context);
+            SubscriptionPlans = new GenericRepository<SubscriptionPlan>(_context);
             UserSubscriptions = new UserSubscriptionRepository(_context);
-            StandardIngredients = new GenericRepository<Domain.Entities.StandardIngredient>(_context);
-            IngredientDictionaries = new GenericRepository<Domain.Entities.IngredientDictionary>(_context);
-            AffiliateProducts = new GenericRepository<Domain.Entities.AffiliateProduct>(_context);
-            DishCaches = new GenericRepository<Domain.Entities.DishCache>(_context);
-            SuggestionRequests = new GenericRepository<Domain.Entities.SuggestionRequest>(_context);
-            SuggestionResults = new GenericRepository<Domain.Entities.SuggestionResult>(_context);
-            UserHomepageCaches = new GenericRepository<Domain.Entities.UserHomepageCache>(_context);
-            UserHistories = new GenericRepository<Domain.Entities.UserHistory>(_context);
-            UserAllergies = new GenericRepository<Domain.Entities.UserAllergy>(_context);
+            StandardIngredients = new GenericRepository<StandardIngredient>(_context);
+            IngredientDictionaries = new GenericRepository<IngredientDictionary>(_context);
+            AffiliateProducts = new GenericRepository<AffiliateProduct>(_context);
+            DishCaches = new GenericRepository<DishCache>(_context);
+            SuggestionRequests = new GenericRepository<SuggestionRequest>(_context);
+            SuggestionResults = new GenericRepository<SuggestionResult>(_context);
+            UserHomepageCaches = new GenericRepository<UserHomepageCache>(_context);
+            UserHistories = new GenericRepository<UserHistory>(_context);
+            UserAllergies = new GenericRepository<UserAllergy>(_context);
+            ThirdPartyApiLogs = new GenericRepository<ThirdPartyApiLog>(_context);
         }
 
         public async Task<int> SaveChangesAsync()

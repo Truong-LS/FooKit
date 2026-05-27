@@ -1,4 +1,4 @@
-﻿namespace MyProject.Domain.UnitTests;
+namespace MyProject.Domain.UnitTests;
 
 public class UnitTest1
 {

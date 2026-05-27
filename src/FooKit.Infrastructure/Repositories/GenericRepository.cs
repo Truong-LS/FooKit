@@ -16,11 +16,11 @@ namespace MyProject.Infrastructure.Repositories
             _dbSet = context.Set<T>();
         }
 
-        public async Task<T?> GetByIdAsync(Guid id) => await _dbSet.FindAsync(id);
+        public virtual async Task<T?> GetByIdAsync(Guid id) => await _dbSet.FindAsync(id);
 
-        public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
+        public virtual async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
 
-        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression) =>
+        public virtual async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression) =>
             await _dbSet.Where(expression).ToListAsync();
 
         public async Task AddAsync(T entity) => await _dbSet.AddAsync(entity);

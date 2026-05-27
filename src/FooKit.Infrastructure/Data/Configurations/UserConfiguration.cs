@@ -41,6 +41,11 @@ namespace MyProject.Infrastructure.Data.Configurations
             builder.Property(x => x.IsActive)
                    .IsRequired()
                    .HasDefaultValue(true);
+
+            builder.HasOne(x => x.Role)
+                   .WithMany(r => r.Users)
+                   .HasForeignKey(x => x.RoleId)
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
