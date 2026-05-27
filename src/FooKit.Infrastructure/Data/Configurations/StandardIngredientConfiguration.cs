@@ -26,6 +26,12 @@ namespace MyProject.Infrastructure.Data.Configurations
                    .IsRequired()
                    .HasConversion(converter)
                    .HasMaxLength(50);
+
+            builder.Property(x => x.IsDeleted)
+                   .IsRequired()
+                   .HasDefaultValue(false);
+
+            builder.HasQueryFilter(x => !x.IsDeleted);
         }
 
         private static string ConvertCategoryToString(IngredientCategory category)

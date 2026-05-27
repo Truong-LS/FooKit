@@ -23,9 +23,9 @@ namespace MyProject.Infrastructure.Repositories
         public IPaymentRepository Payments { get; private set; }
         public IGenericRepository<SubscriptionPlan> SubscriptionPlans { get; private set; }
         public IUserSubscriptionRepository UserSubscriptions { get; private set; }
-        public IGenericRepository<StandardIngredient> StandardIngredients { get; private set; }
-        public IGenericRepository<IngredientDictionary> IngredientDictionaries { get; private set; }
-        public IGenericRepository<AffiliateProduct> AffiliateProducts { get; private set; }
+        public IStandardIngredientRepository StandardIngredients { get; private set; }
+        public IIngredientDictionaryRepository IngredientDictionaries { get; private set; }
+        public IAffiliateProductRepository AffiliateProducts { get; private set; }
         public IGenericRepository<DishCache> DishCaches { get; private set; }
         public IGenericRepository<SuggestionRequest> SuggestionRequests { get; private set; }
         public IGenericRepository<SuggestionResult> SuggestionResults { get; private set; }
@@ -44,9 +44,9 @@ namespace MyProject.Infrastructure.Repositories
             Payments = new PaymentRepository(_context);
             SubscriptionPlans = new GenericRepository<SubscriptionPlan>(_context);
             UserSubscriptions = new UserSubscriptionRepository(_context);
-            StandardIngredients = new GenericRepository<StandardIngredient>(_context);
-            IngredientDictionaries = new GenericRepository<IngredientDictionary>(_context);
-            AffiliateProducts = new GenericRepository<AffiliateProduct>(_context);
+            StandardIngredients = new StandardIngredientRepository(_context);
+            IngredientDictionaries = new IngredientDictionaryRepository(_context);
+            AffiliateProducts = new AffiliateProductRepository(_context);
             DishCaches = new GenericRepository<DishCache>(_context);
             SuggestionRequests = new GenericRepository<SuggestionRequest>(_context);
             SuggestionResults = new GenericRepository<SuggestionResult>(_context);

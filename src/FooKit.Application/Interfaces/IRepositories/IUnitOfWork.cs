@@ -11,9 +11,9 @@ namespace MyProject.Application.Interfaces.IRepositories
         IPaymentRepository Payments { get; }
         IGenericRepository<SubscriptionPlan> SubscriptionPlans { get; }
         IUserSubscriptionRepository UserSubscriptions { get; }
-        IGenericRepository<StandardIngredient> StandardIngredients { get; }
-        IGenericRepository<IngredientDictionary> IngredientDictionaries { get; }
-        IGenericRepository<AffiliateProduct> AffiliateProducts { get; }
+        IStandardIngredientRepository StandardIngredients { get; }
+        IIngredientDictionaryRepository IngredientDictionaries { get; }
+        IAffiliateProductRepository AffiliateProducts { get; }
         IGenericRepository<DishCache> DishCaches { get; }
         IGenericRepository<SuggestionRequest> SuggestionRequests { get; }
         IGenericRepository<SuggestionResult> SuggestionResults { get; }

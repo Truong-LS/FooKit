@@ -20,6 +20,9 @@ public static class DependencyInjection
         services.AddScoped<IDishSuggestionService, DishSuggestionService>();
         services.AddScoped<IHomepageSuggestionService, HomepageSuggestionService>();
         services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+        services.AddScoped<IIngredientService, IngredientService>();
+        services.AddScoped<IAiDictionaryService, AiDictionaryService>();
+        services.AddScoped<IAffiliateLinkService, AffiliateLinkService>();
 
         return services;
     }

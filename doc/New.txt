@@ -1,98 +1,143 @@
-1. System Overview API (Dashboard Overview)
+## 1. Standard Ingredients Management
 
-This API acts like a speedometer dashboard, providing a quick snapshot of the application's “health” and growth status immediately after the Admin logs in.
+This is the core dataset of the entire system. Every processing flow (from Shopee affiliate link matching to AI keyword mapping) revolves around the IDs in this table.
 
-Endpoint: GET /api/v1/admin/dashboard/overview
+**Authentication:** Required (JWT Token with Admin role required).
 
-Authentication: Required (JWT Token with Admin role required).
+### Designed Endpoints
 
-Request Parameters
+#### `GET /api/admin/ingredients`
 
-No complex query parameters are required. Optionally, you can pass timezone_offset if you want “Today” calculations to match the Admin’s timezone instead of UTC time.
+**Query Parameters:**
 
-Response Structure (Response JSON)
+* `page`
+* `size`
+* `search` (search by ingredient name)
+* `category` (meat, vegetables, spices, etc.)
+
+**Response:**
+Returns a paginated list of ingredients.
+
+---
+
+#### `POST /api/admin/ingredients`
+
+**Purpose:**
+Add a completely new ingredient into the system.
+
+---
+
+#### `PUT /api/admin/ingredients/{id}`
+
+**Purpose:**
+Fix spelling mistakes or change the ingredient category.
+
+---
+
+#### `DELETE /api/admin/ingredients/{id}`
+
+### Extremely Important Backend Processing Flow
+
+Do **not** use `Remove()` immediately.
+
+The backend must first check whether this ingredient ID is already being used in the `AffiliateProduct` or `IngredientDictionary` tables.
+
+* If it is being referenced, deletion must be blocked and a `400 Bad Request` error should be returned.
+
+Example:
+
+```json
 {
-  "timestamp": "2026-05-27T09:46:00Z",
-  "users_metrics": {
-    "total_users": 1500,
-    "premium_users": 120,
-    "new_users_today": 15
-  },
-  "content_metrics": {
-    "meals_generated_today": 450,
-    "total_active_affiliate_links": 2500
-  },
-  "system_health": {
-    "is_worker_running": true,
-    "last_affiliate_sync": "2026-05-27T02:00:00Z"
-  }
+  "message": "Cannot delete because there are currently 3 Shopee affiliate links associated with this ingredient."
 }
-Backend Processing Flow (Service Logic)
+```
 
-Use Entity Framework Core to query the related tables directly:
+For maximum safety, you should implement an `IsDeleted` column (Soft Delete) for this table.
 
-total_users: CountAsync() on the entire Users table.
-premium_users: CountAsync() on the Users table with the condition that the current Subscription package has EndDate > DateTime.UtcNow.
-meals_generated_today: CountAsync() on the meal generation history table (e.g., UserMealHistory) where CreatedAt falls within today’s date.
-total_active_affiliate_links: CountAsync() on the AffiliateProduct table where IsActive == true.
-2. Third-Party API Usage & Cost API
+---
 
-This is the API that helps you “protect your money.” To support this API, you should instruct the AI Agent to create an additional logging table in the database (e.g., ThirdPartyApiLog) so that every time the system calls Spoonacular or an AI provider, a new log entry is inserted to record token usage.
+# 2. AI Dictionary Cache Management
 
-Endpoint: GET /api/v1/admin/dashboard/api-usage
+This is where the Admin acts as the “teacher” correcting AI mistakes. If the AI maps the wrong ingredient ID, the final results shown to users will be completely inaccurate.
 
-Authentication: Required (JWT Token with Admin role required).
+**Authentication:** Required (JWT Token with Admin role required).
 
-Request Parameters (Query Parameters)
+### Designed Endpoints
 
-Allow Admins to filter by a time range to review costs for a specific week or month.
+#### `GET /api/admin/ai-dictionary`
 
-start_date (example: 2026-05-01)
-end_date (example: 2026-05-31)
-Response Structure (Response JSON)
+### Query Parameters
+
+* `page`
+* `size`
+* `search_raw_text` (search by raw English keyword)
+
+---
+
+#### `PUT /api/admin/ai-dictionary/{id}`
+
+**Purpose:**
+Correct the mapping to the proper ingredient.
+
+### Request Body
+
+Pass the `new_standard_ingredient_id` (the ID of “Apple”).
+
+### Backend Processing Flow
+
+Find the dictionary record by `id`, then update the `StandardIngredientId` column with the new value.
+
+---
+
+#### `DELETE /api/admin/ai-dictionary/{id}`
+
+**Purpose:**
+Completely remove this English keyword from the cache.
+
+### Objective
+
+The next time a user searches for a recipe containing this keyword, the system will be forced to send the keyword back to Google Gemini/OpenAI so the AI can analyze and remap it from scratch.
+
+---
+
+# 3. Affiliate Links Management
+
+Allows you to manually intervene in the automation system. Sometimes the worker may find a correctly named product link, but the shop has terrible reviews — you need the ability to immediately “eliminate” that link.
+
+**Authentication:** Required (JWT Token with Admin role required).
+
+### Designed Endpoints
+
+#### `GET /api/admin/affiliate-links`
+
+### Query Parameters
+
+* `page`
+* `size`
+* `is_active` (filter enabled or disabled links)
+* `ingredient_id` (view all links associated with a specific ingredient)
+
+---
+
+#### `PUT /api/admin/affiliate-links/{id}/toggle-status`
+
+**Purpose:**
+Enable or disable a specific affiliate link.
+
+### Request Body
+
+No body is required, or you can send a small JSON payload:
+
+```json
 {
-  "period": {
-    "start": "2026-05-01",
-    "end": "2026-05-31"
-  },
-  "total_estimated_cost_usd": 15.45,
-  "details": {
-    "ai_provider": {
-      "name": "Google Gemini",
-      "total_requests": 3200,
-      "total_tokens_used": 1500000,
-      "estimated_cost_usd": 3.75
-    },
-    "recipe_provider": {
-      "name": "Spoonacular",
-      "total_requests": 2500,
-      "quota_used_percentage": 85.0,
-      "estimated_cost_usd": 11.70
-    }
-  },
-  "cache_efficiency": {
-    "ai_cache_hit_rate_percentage": 78.5
-  }
+  "is_active": false
 }
-Backend Processing Flow (Service Logic)
-Data Filtering
+```
 
-Query the ThirdPartyApiLog table within the start_date and end_date range.
+### Backend Processing Flow
 
-AI Cost Calculation
+Use EF Core to find the corresponding record in the `AffiliateProduct` table by `id`.
 
-Group (GroupBy) records by AI service provider and calculate the total TokensUsed. Then multiply by the current pricing of Google/OpenAI (for example: $2.50 per 1 million tokens) to calculate estimated_cost_usd.
+Update the `IsActive` field to `false` (or `true` if re-enabling the link), then call `SaveChangesAsync()`.
 
-Spoonacular Cost Calculation
-
-Group records by the Spoonacular service and count the total number of requests. Calculate the used quota percentage based on your purchased subscription plan limits.
-
-Optimization Metric (Cache Hit Rate)
-
-This is the most important metric. It is calculated using the formula:
-
-Number of ingredient retrievals from the database / Total number of ingredient translation requests
-
-If this ratio is above 70%, it means your IngredientDictionary cache table is performing extremely efficiently, saving up to 70% of AI API costs.
-
-If the ratio is low, you should review and optimize your caching algorithm.
+From that moment onward, the Meal Recommendation API on the homepage will automatically ignore this affiliate link when calculating meal pricing.
