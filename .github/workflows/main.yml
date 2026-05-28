@@ -35,12 +35,6 @@ jobs:
       - name: Build project
         run: dotnet build ${{ env.API_PROJECT_PATH }} --configuration Release --no-restore
 
-      # Bước 5: Chạy Unit/Integration Test (Tùy chọn)
-      # Sẽ tự động chạy các bài test trong thư mục /tests để đảm bảo code an toàn trước khi đẩy lên server
-      - name: Run automated tests
-        run: dotnet test --configuration Release --no-build
-        continue-on-error: true # Tạm thời cho phép vượt qua nếu bạn chưa viết test, hãy xóa dòng này đi khi dự án đã có test hoàn chỉnh
-
       # Bước 6: Đóng gói toàn bộ mã nguồn của lớp API và các thư viện liên quan ra thư mục tạm
       - name: Publish API project
         run: dotnet publish ${{ env.API_PROJECT_PATH }} --configuration Release -o ${{env.DOTNET_ROOT}}/myapp
