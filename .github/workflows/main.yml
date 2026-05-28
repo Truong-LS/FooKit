@@ -1,0 +1,48 @@
+name: Deploy FooKit-BE to Azure Web App
+
+# Kích hoạt luồng khi có code mới đẩy lên nhánh main
+on:
+  push:
+    branches:
+      - main # Đổi thành 'master' nếu nhánh chính của bạn tên là master
+
+env:
+  AZURE_WEBAPP_NAME: 'FooKit-BE' # Thay bằng tên Web App bạn đã tạo trên Azure
+  DOTNET_VERSION: '9.0.x'                            # Đã khớp với <TargetFramework>net9.0</TargetFramework>
+  API_PROJECT_PATH: './src/FooKit.API/FooKit.API.csproj' # ĐƯỜNG DẪN QUAN TRỌNG: Sửa lại cho đúng với tên thư mục chứa file .csproj của dự án API
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Bước 1: Lấy mã nguồn từ GitHub
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Bước 2: Cài đặt .NET 9 SDK
+      - name: Set up .NET Core ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # Bước 3: Phục hồi các thư viện (Dependencies)
+      # Vì cấu trúc Clean Architecture tham chiếu chéo nhiều Layer, việc restore từ file csproj API sẽ kéo theo cả Application và Infrastructure
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.API_PROJECT_PATH }}
+
+      # Bước 4: Build dự án
+      - name: Build project
+        run: dotnet build ${{ env.API_PROJECT_PATH }} --configuration Release --no-restore
+
+      # Bước 6: Đóng gói toàn bộ mã nguồn của lớp API và các thư viện liên quan ra thư mục tạm
+      - name: Publish API project
+        run: dotnet publish ${{ env.API_PROJECT_PATH }} --configuration Release -o ${{env.DOTNET_ROOT}}/myapp
+
+      # Bước 7: Dùng Publish Profile để đưa bản build lên Azure
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ${{env.DOTNET_ROOT}}/myapp
