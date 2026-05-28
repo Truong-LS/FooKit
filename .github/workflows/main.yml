@@ -7,7 +7,7 @@ on:
       - main # Đổi thành 'master' nếu nhánh chính của bạn tên là master
 
 env:
-  AZURE_WEBAPP_NAME: 'ten-webapp-tren-azure-cua-ban' # Thay bằng tên Web App bạn đã tạo trên Azure
+  AZURE_WEBAPP_NAME: 'FooKit-BE' # Thay bằng tên Web App bạn đã tạo trên Azure
   DOTNET_VERSION: '9.0.x'                            # Đã khớp với <TargetFramework>net9.0</TargetFramework>
   API_PROJECT_PATH: './src/FooKit.API/FooKit.API.csproj' # ĐƯỜNG DẪN QUAN TRỌNG: Sửa lại cho đúng với tên thư mục chứa file .csproj của dự án API
 
