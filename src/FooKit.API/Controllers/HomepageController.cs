@@ -7,7 +7,7 @@ using MyProject.Application.Interfaces.IServices;
 namespace MyProject.API.Controllers
 {
     [ApiController]
-    [Route("api/Homepage")]
+    [Route("api/[controller]")]
     public class HomepageController : ControllerBase
     {
         private readonly IHomepageSuggestionService _homepageSuggestionService;

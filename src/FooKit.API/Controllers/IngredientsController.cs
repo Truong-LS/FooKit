@@ -10,7 +10,7 @@ using MyProject.Application.Interfaces.IServices;
 namespace MyProject.API.Controllers
 {
     [ApiController]
-    [Route("api/admin/ingredients")]
+    [Route("api/[controller]")]
     [Authorize(Roles = "Admin")]
     public class IngredientsController : ControllerBase
     {

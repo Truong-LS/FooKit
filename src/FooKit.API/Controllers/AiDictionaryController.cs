@@ -10,7 +10,7 @@ using MyProject.Application.Interfaces.IServices;
 namespace MyProject.API.Controllers
 {
     [ApiController]
-    [Route("api/admin/ai-dictionary")]
+    [Route("api/[controller]")]
     [Authorize(Roles = "Admin")]
     public class AiDictionaryController : ControllerBase
     {

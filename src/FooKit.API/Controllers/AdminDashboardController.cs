@@ -8,7 +8,7 @@ using MyProject.Application.Interfaces.IServices;
 namespace MyProject.API.Controllers
 {
     [ApiController]
-    [Route("api/admin/dashboard")]
+    [Route("api/[controller]")]
     [Authorize(Roles = "Admin")]
     public class AdminDashboardController : ControllerBase
     {

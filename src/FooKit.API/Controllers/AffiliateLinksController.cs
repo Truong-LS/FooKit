@@ -9,7 +9,7 @@ using MyProject.Application.Interfaces.IServices;
 namespace MyProject.API.Controllers
 {
     [ApiController]
-    [Route("api/admin/affiliate-links")]
+    [Route("api/[controller]")]
     [Authorize(Roles = "Admin")]
     public class AffiliateLinksController : ControllerBase
     {
