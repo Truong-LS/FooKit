@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace MyProject.Application.DTOs.AdminDashboardDtos
+namespace MyProject.Application.DTOs.AdminDtos
 {
     public class ApiUsageDto
     {

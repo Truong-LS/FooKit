@@ -43,5 +43,28 @@ namespace MyProject.Infrastructure.Repositories
         {
             return await _context.IngredientDictionaries.CountAsync(x => x.StandardIngredientId == id);
         }
+
+        public async Task<IEnumerable<StandardIngredient>> GetIngredientsForSyncAsync(int maxLinks, DateTime cutoffTime, bool forceSyncAll, string targetIngredientId)
+        {
+            var query = _dbSet.Include(si => si.AffiliateProducts).AsQueryable();
+
+            if (!string.IsNullOrEmpty(targetIngredientId) && Guid.TryParse(targetIngredientId, out var parsedId))
+            {
+                query = query.Where(si => si.Id == parsedId);
+            }
+
+            if (!forceSyncAll)
+            {
+                query = query.Where(si =>
+                    si.AffiliateProducts.Count(ap => ap.IsActive) < maxLinks ||
+                    si.AffiliateProducts
+                        .Where(ap => ap.IsActive)
+                        .OrderByDescending(ap => ap.LastUpdatedPriceAt)
+                        .Select(ap => ap.LastUpdatedPriceAt)
+                        .FirstOrDefault() < cutoffTime);
+            }
+
+            return await query.ToListAsync();
+        }
     }
 }

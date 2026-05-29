@@ -10,7 +10,6 @@ using MyProject.Infrastructure.ExternalServices;
 using MyProject.Infrastructure.Repositories;
 using Polly;
 using Polly.Extensions.Http;
-
 namespace MyProject.Infrastructure.DependencyInjection;
 
 public static class DependencyInjection

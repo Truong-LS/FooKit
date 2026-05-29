@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using MyProject.Application.DTOs.AdminDashboardDtos;
+using MyProject.Application.DTOs.AdminDtos;
 using MyProject.Application.Interfaces.IRepositories;
 using MyProject.Application.Interfaces.IServices;
 using MyProject.Domain.Entities;

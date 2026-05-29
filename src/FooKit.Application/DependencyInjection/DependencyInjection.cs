@@ -23,6 +23,9 @@ public static class DependencyInjection
         services.AddScoped<IIngredientService, IngredientService>();
         services.AddScoped<IAiDictionaryService, AiDictionaryService>();
         services.AddScoped<IAffiliateLinkService, AffiliateLinkService>();
+        services.AddScoped<IAffiliateSyncService, AffiliateSyncService>();
+        services.AddScoped<IAdminUserService, AdminUserService>();
+        services.AddSingleton<IHomepageCacheSignal, HomepageCacheSignal>();
 
         return services;
     }

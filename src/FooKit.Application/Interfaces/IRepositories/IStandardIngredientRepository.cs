@@ -11,5 +11,6 @@ namespace MyProject.Application.Interfaces.IRepositories
         Task<(IEnumerable<StandardIngredient> Items, int TotalCount)> GetPaginatedAsync(int page, int size, string? search, IngredientCategory? category);
         Task<int> GetAffiliateProductsCountAsync(Guid id);
         Task<int> GetIngredientDictionariesCountAsync(Guid id);
+        Task<IEnumerable<StandardIngredient>> GetIngredientsForSyncAsync(int maxLinks, DateTime cutoffTime, bool forceSyncAll, string targetIngredientId);
     }
 }

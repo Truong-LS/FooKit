@@ -13,6 +13,7 @@ namespace MyProject.Domain.Entities
         public string? FullName { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsActive { get; set; } = true;
+        public string? BanReason { get; set; }
         public Guid RoleId { get; set; }
         public virtual Role Role { get; set; } = null!;
 

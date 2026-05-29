@@ -6,6 +6,8 @@ using MyProject.Application.Configuration;
 using MyProject.Application.DependencyInjection;
 using MyProject.Infrastructure.DependencyInjection;
 using Scalar.AspNetCore;
+using Hangfire;
+using Hangfire.MemoryStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +40,16 @@ builder.Services.PostConfigure<AffiliateWorkerOptions>(options =>
 });
 
 builder.Services.AddHostedService<AutoSearchAffiliateWorker>();
+
+builder.Services.AddMemoryCache();
+
+builder.Services.AddHangfire(config => config
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseMemoryStorage());
+
+builder.Services.AddHangfireServer();
 #endregion
 
 var app = builder.Build();
@@ -66,6 +78,8 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+app.UseMiddleware<BanCheckMiddleware>();
+
 app.MapHealthChecks("/health");
 
 app.MapControllers();
@@ -73,6 +87,11 @@ app.MapControllers();
 #region SignalR Hub Endpoints
 app.MapHub<NotificationHub>("/hubs/notification");
 #endregion
+
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    // Authorization could be added here for Admin
+});
 
 app.Run();
 

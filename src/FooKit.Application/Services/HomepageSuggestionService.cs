@@ -10,6 +10,7 @@ using MyProject.Application.Interfaces.IRepositories;
 using MyProject.Application.Interfaces.IServices;
 using MyProject.Domain.Entities;
 using MyProject.Domain.Enums;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace MyProject.Application.Services
 {
@@ -19,17 +20,23 @@ namespace MyProject.Application.Services
         private readonly ISpoonacularService _spoonacularService;
         private readonly IAiMatchingService _aiMatchingService;
         private readonly ILogger<HomepageSuggestionService> _logger;
+        private readonly IMemoryCache _memoryCache;
+        private readonly IHomepageCacheSignal _cacheSignal;
 
         public HomepageSuggestionService(
             IUnitOfWork unitOfWork,
             ISpoonacularService spoonacularService,
             IAiMatchingService aiMatchingService,
-            ILogger<HomepageSuggestionService> logger)
+            ILogger<HomepageSuggestionService> logger,
+            IMemoryCache memoryCache,
+            IHomepageCacheSignal cacheSignal)
         {
             _unitOfWork = unitOfWork;
             _spoonacularService = spoonacularService;
             _aiMatchingService = aiMatchingService;
             _logger = logger;
+            _memoryCache = memoryCache;
+            _cacheSignal = cacheSignal;
         }
 
         public async Task<HomepageSuggestionResponseDto> GetDailySuggestionsAsync(Guid userId)
@@ -45,12 +52,10 @@ namespace MyProject.Application.Services
             }
 
             // 2. Cache Checking (Step 5A)
-            var today = DateTime.UtcNow.Date;
-            var cache = (await _unitOfWork.UserHomepageCaches.FindAsync(c => c.UserId == userId && c.ExpirationTime > DateTime.UtcNow)).FirstOrDefault();
-            if (cache != null)
+            if (_memoryCache.TryGetValue($"HomepageCache:User_{userId}", out string cachedData))
             {
                 _logger.LogInformation("Cache hit for user {UserId}. Returning serialized menu data.", userId);
-                return JsonSerializer.Deserialize<HomepageSuggestionResponseDto>(cache.SerializedMenuData) ?? response;
+                return JsonSerializer.Deserialize<HomepageSuggestionResponseDto>(cachedData) ?? response;
             }
 
             // 3. User Profile Fetching
@@ -102,16 +107,16 @@ namespace MyProject.Application.Services
             return response;
         }
 
-        private async Task SaveCacheAsync(Guid userId, HomepageSuggestionResponseDto response)
+        private Task SaveCacheAsync(Guid userId, HomepageSuggestionResponseDto response)
         {
-            var newCache = new UserHomepageCache
+            var options = new MemoryCacheEntryOptions
             {
-                UserId = userId,
-                SerializedMenuData = JsonSerializer.Serialize(response),
-                ExpirationTime = DateTime.UtcNow.AddHours(24)
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24)
             };
-            await _unitOfWork.UserHomepageCaches.AddAsync(newCache);
-            await _unitOfWork.SaveChangesAsync();
+            options.AddExpirationToken(_cacheSignal.GetToken());
+
+            _memoryCache.Set($"HomepageCache:User_{userId}", JsonSerializer.Serialize(response), options);
+            return Task.CompletedTask;
         }
     }
 }

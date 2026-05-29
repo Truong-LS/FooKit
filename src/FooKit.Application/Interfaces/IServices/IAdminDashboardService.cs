@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using MyProject.Application.DTOs.AdminDashboardDtos;
+using MyProject.Application.DTOs.AdminDtos;
 
 namespace MyProject.Application.Interfaces.IServices
 {
