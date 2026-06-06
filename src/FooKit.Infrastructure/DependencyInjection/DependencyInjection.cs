@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddScoped<IVnPayService, VnPayService>();
 
         services.AddSingleton<WorkerHealthTracker>();
+        services.AddScoped<IImageService, ImageService>();
 
         // Register Options
         services.Configure<SpoonacularOptions>(options =>
@@ -45,6 +46,13 @@ public static class DependencyInjection
             options.ApiKey = config["GEMINI_API_KEY"] ?? string.Empty;
             options.BaseUrl = config["GEMINI_BASE_URL"] ?? "https://generativelanguage.googleapis.com";
             options.Model = config["GEMINI_MODEL"] ?? "gemini-1.5-flash";
+        });
+
+        services.Configure<CloudinarySettings>(options =>
+        {
+            options.CloudName = config["CloudinarySettings:CloudName"] ?? string.Empty;
+            options.ApiKey = config["CloudinarySettings:ApiKey"] ?? string.Empty;
+            options.ApiSecret = config["CloudinarySettings:ApiSecret"] ?? string.Empty;
         });
 
         // Register Accesstrade HttpClient with Polly retry policy (exponential backoff)

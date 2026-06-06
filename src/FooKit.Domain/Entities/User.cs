@@ -11,6 +11,7 @@ namespace FooKit.Domain.Entities
         public string? Email { get; set; }
         
         public string? FullName { get; set; }
+        public string? AvatarUrl { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsActive { get; set; } = true;
         public string? BanReason { get; set; }

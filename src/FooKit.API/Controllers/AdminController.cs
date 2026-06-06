@@ -72,5 +72,12 @@ namespace FooKit.API.Controllers
             string message = request.IsActive ? "The user account has been unbanned." : "The user account has been banned.";
             return Ok(ApiResponse<object>.Ok(null, message));
         }
+
+        [HttpPut("users/{userId}")]
+        public async Task<IActionResult> UpdateUser(Guid userId, [FromForm] UpdateUserAdminRequestDto request)
+        {
+            var result = await _adminUserService.UpdateUserAsync(userId, request);
+            return Ok(ApiResponse<UserAdminResponseDto>.Ok(result, "User profile updated successfully."));
+        }
     }
 }

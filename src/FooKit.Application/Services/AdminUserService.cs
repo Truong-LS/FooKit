@@ -15,11 +15,13 @@ namespace FooKit.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMemoryCache _memoryCache;
+        private readonly IImageService _imageService;
 
-        public AdminUserService(IUnitOfWork unitOfWork, IMemoryCache memoryCache)
+        public AdminUserService(IUnitOfWork unitOfWork, IMemoryCache memoryCache, IImageService imageService)
         {
             _unitOfWork = unitOfWork;
             _memoryCache = memoryCache;
+            _imageService = imageService;
         }
 
         public async Task<PagedResult<UserAdminResponseDto>> GetUsersAsync(GetUsersRequestDto request)
@@ -53,7 +55,8 @@ namespace FooKit.Application.Services
                     Email = u.Email,
                     IsActive = u.IsActive,
                     CreatedAt = u.CreatedAt,
-                    SubscriptionStatus = subStatus
+                    SubscriptionStatus = subStatus,
+                    AvatarUrl = u.AvatarUrl
                 };
             }).ToList();
 
@@ -115,6 +118,41 @@ namespace FooKit.Application.Services
 
             // Clear cache to make ban take effect immediately
             _memoryCache.Remove($"UserActiveStatus_{userId}");
+        }
+
+        public async Task<UserAdminResponseDto> UpdateUserAsync(Guid userId, UpdateUserAdminRequestDto request)
+        {
+            var user = await _unitOfWork.Users.GetByIdAsync(userId);
+            if (user == null) throw new NotFoundException($"User with ID {userId} not found.");
+
+            if (!string.IsNullOrEmpty(request.FullName))
+                user.FullName = request.FullName;
+
+            if (!string.IsNullOrEmpty(request.Email))
+                user.Email = request.Email;
+
+            if (!string.IsNullOrEmpty(request.Username))
+                user.Username = request.Username;
+
+            if (request.AvatarFile != null)
+            {
+                var avatarUrl = await _imageService.UploadImageAsync(request.AvatarFile);
+                user.AvatarUrl = avatarUrl;
+            }
+
+            _unitOfWork.Users.Update(user);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new UserAdminResponseDto
+            {
+                UserId = user.Id,
+                FullName = user.FullName,
+                Email = user.Email,
+                Username = user.Username,
+                IsActive = user.IsActive,
+                CreatedAt = user.CreatedAt,
+                AvatarUrl = user.AvatarUrl
+            };
         }
     }
 }

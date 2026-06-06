@@ -10,10 +10,12 @@ namespace FooKit.Application.Services
     public class UserService : IUserService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IImageService _imageService;
 
-        public UserService(IUnitOfWork unitOfWork)
+        public UserService(IUnitOfWork unitOfWork, IImageService imageService)
         {
             _unitOfWork = unitOfWork;
+            _imageService = imageService;
         }
 
         public async Task<bool> ChangePasswordAsync(Guid userId, ChangePasswordRequest request)
@@ -57,6 +59,12 @@ namespace FooKit.Application.Services
 
             user.FullName = request.FullName;
 
+            if (request.AvatarFile != null)
+            {
+                var avatarUrl = await _imageService.UploadImageAsync(request.AvatarFile);
+                user.AvatarUrl = avatarUrl;
+            }
+
             _unitOfWork.Users.Update(user);
             await _unitOfWork.SaveChangesAsync();
 
@@ -65,7 +73,8 @@ namespace FooKit.Application.Services
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                FullName = user.FullName
+                FullName = user.FullName,
+                AvatarUrl = user.AvatarUrl
             };
         }
     }

@@ -11,6 +11,9 @@ namespace FooKit.Application.DTOs.AdminDtos
         [JsonPropertyName("full_name")]
         public string? FullName { get; set; }
 
+        [JsonPropertyName("username")]
+        public string? Username { get; set; }
+
         [JsonPropertyName("email")]
         public string? Email { get; set; }
 
@@ -22,6 +25,9 @@ namespace FooKit.Application.DTOs.AdminDtos
 
         [JsonPropertyName("created_at")]
         public DateTime CreatedAt { get; set; }
+
+        [JsonPropertyName("avatar_url")]
+        public string? AvatarUrl { get; set; }
     }
 
     public class UserAdminSubscriptionStatusDto
