@@ -1,16 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MyProject.Application.Interfaces.IRepositories;
-using MyProject.Application.Interfaces.IServices;
-using MyProject.Application.Configuration;
-using MyProject.Domain.Entities;
-using MyProject.Infrastructure.Data.DBContext;
-using MyProject.Infrastructure.ExternalServices;
-using MyProject.Infrastructure.Repositories;
+using FooKit.Application.Interfaces.IRepositories;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Application.Configuration;
+using FooKit.Domain.Entities;
+using FooKit.Infrastructure.Data.DBContext;
+using FooKit.Infrastructure.ExternalServices;
+using FooKit.Infrastructure.Repositories;
 using Polly;
 using Polly.Extensions.Http;
-namespace MyProject.Infrastructure.DependencyInjection;
+namespace FooKit.Infrastructure.DependencyInjection;
 
 public static class DependencyInjection
 {

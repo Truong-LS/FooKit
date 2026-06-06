@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MyProject.Application.DTOs.SubscriptionDtos;
+using FooKit.Application.DTOs.SubscriptionDtos;
 
-namespace MyProject.Application.Interfaces.IServices
+namespace FooKit.Application.Interfaces.IServices
 {
     public interface ISubscriptionService
     {

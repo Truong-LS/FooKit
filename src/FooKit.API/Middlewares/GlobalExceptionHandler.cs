@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using MyProject.Domain.Exceptions;
+using FooKit.Domain.Exceptions;
 
-namespace MyProject.API.Middlewares
+namespace FooKit.API.Middlewares
 {
     public class GlobalExceptionHandler : IExceptionHandler
     {

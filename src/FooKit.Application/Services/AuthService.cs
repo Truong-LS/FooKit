@@ -1,15 +1,15 @@
 using AutoMapper;
 
 using Microsoft.Extensions.Configuration;
-using MyProject.Application.DTOs.AuthDtos;
-using MyProject.Application.Interfaces.IRepositories;
-using MyProject.Application.Interfaces.IServices;
-using MyProject.Domain.Entities;
-using MyProject.Domain.Exceptions;
+using FooKit.Application.DTOs.AuthDtos;
+using FooKit.Application.Interfaces.IRepositories;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Domain.Entities;
+using FooKit.Domain.Exceptions;
 using System.Security.Claims;
 
 
-namespace MyProject.Application.Services
+namespace FooKit.Application.Services
 {
     public class AuthService : IAuthService
     {

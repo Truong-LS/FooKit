@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using MyProject.Application.DTOs.AdminDtos;
-using MyProject.Application.DTOs.Common;
+using FooKit.Application.DTOs.AdminDtos;
+using FooKit.Application.DTOs.Common;
 
-namespace MyProject.Application.Interfaces.IServices
+namespace FooKit.Application.Interfaces.IServices
 {
     public interface IAdminUserService
     {

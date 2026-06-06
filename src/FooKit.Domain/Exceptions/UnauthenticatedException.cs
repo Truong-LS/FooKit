@@ -1,4 +1,4 @@
-namespace MyProject.Domain.Exceptions
+namespace FooKit.Domain.Exceptions
 {
     public class UnauthenticatedException : Exception
     {

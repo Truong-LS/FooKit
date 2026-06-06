@@ -1,6 +1,6 @@
-using MyProject.Domain.Entities;
+using FooKit.Domain.Entities;
 
-namespace MyProject.Application.Interfaces.IServices
+namespace FooKit.Application.Interfaces.IServices
 {
     /// <summary>
     /// Abstracts VNPay gateway operations. Implemented in Infrastructure layer.

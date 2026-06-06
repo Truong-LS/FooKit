@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc.Filters;
-using MyProject.Domain.Exceptions;
+using FooKit.Domain.Exceptions;
 using System.Security.Claims;
 
-namespace MyProject.API.Filters
+namespace FooKit.API.Filters
 {
     public class OwnerActionFilter : IActionFilter
     {

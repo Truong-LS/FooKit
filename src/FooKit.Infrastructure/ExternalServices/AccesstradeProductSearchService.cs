@@ -2,11 +2,11 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MyProject.Application.Configuration;
-using MyProject.Application.DTOs.AffiliateProductDtos;
-using MyProject.Application.Interfaces.IServices;
+using FooKit.Application.Configuration;
+using FooKit.Application.DTOs.AffiliateProductDtos;
+using FooKit.Application.Interfaces.IServices;
 
-namespace MyProject.Infrastructure.ExternalServices;
+namespace FooKit.Infrastructure.ExternalServices;
 
 /// <summary>
 /// Calls the real Accesstrade Datafeed API to search for affiliate products on Shopee.

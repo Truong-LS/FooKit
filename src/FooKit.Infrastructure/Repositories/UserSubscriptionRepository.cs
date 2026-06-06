@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using MyProject.Application.Interfaces.IRepositories;
-using MyProject.Domain.Entities;
-using MyProject.Infrastructure.Data.DBContext;
+using FooKit.Application.Interfaces.IRepositories;
+using FooKit.Domain.Entities;
+using FooKit.Infrastructure.Data.DBContext;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MyProject.Infrastructure.Repositories
+namespace FooKit.Infrastructure.Repositories
 {
     public class UserSubscriptionRepository : GenericRepository<UserSubscription>, IUserSubscriptionRepository
     {

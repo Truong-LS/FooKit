@@ -1,6 +1,6 @@
-using MyProject.Domain.Entities;
+using FooKit.Domain.Entities;
 
-namespace MyProject.Application.Interfaces.IRepositories
+namespace FooKit.Application.Interfaces.IRepositories
 {
     public interface IUnitOfWork : IDisposable
     {

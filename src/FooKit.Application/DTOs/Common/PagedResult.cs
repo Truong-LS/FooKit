@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MyProject.Application.DTOs.Common
+namespace FooKit.Application.DTOs.Common
 {
     public class PagedResult<T>
     {

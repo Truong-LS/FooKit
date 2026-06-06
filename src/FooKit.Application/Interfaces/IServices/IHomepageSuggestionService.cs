@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
-using MyProject.Application.DTOs.HomepageDtos;
+using FooKit.Application.DTOs.HomepageDtos;
 
-namespace MyProject.Application.Interfaces.IServices
+namespace FooKit.Application.Interfaces.IServices
 {
     public interface IHomepageSuggestionService
     {

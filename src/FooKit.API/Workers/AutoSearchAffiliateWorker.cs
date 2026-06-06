@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using MyProject.Application.Configuration;
-using MyProject.Application.Interfaces.IServices;
-using MyProject.Domain.Entities;
-using MyProject.Domain.ValueObjects;
-using MyProject.Infrastructure.Data.DBContext;
+using FooKit.Application.Configuration;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Domain.Entities;
+using FooKit.Domain.ValueObjects;
+using FooKit.Infrastructure.Data.DBContext;
 
-namespace MyProject.API.Workers;
+namespace FooKit.API.Workers;
 
 /// <summary>
 /// Background service that periodically scans StandardIngredients,

@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace MyProject.Application.DTOs.AffiliateProductDtos;
+namespace FooKit.Application.DTOs.AffiliateProductDtos;
 
 /// <summary>
 /// Root response from Accesstrade Datafeed API.

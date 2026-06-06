@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MyProject.Domain.ValueObjects
+namespace FooKit.Domain.ValueObjects
 {
     public class Money : ValueObject
     {

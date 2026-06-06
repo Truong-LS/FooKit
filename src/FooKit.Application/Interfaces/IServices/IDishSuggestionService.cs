@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
-using MyProject.Application.DTOs.DishDtos;
+using FooKit.Application.DTOs.DishDtos;
 
-namespace MyProject.Application.Interfaces.IServices
+namespace FooKit.Application.Interfaces.IServices
 {
     public interface IDishSuggestionService
     {

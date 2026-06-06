@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
-using MyProject.Application.Interfaces.IHubs;
+using FooKit.Application.Interfaces.IHubs;
 
-namespace MyProject.API.Hubs;
+namespace FooKit.API.Hubs;
 
 /// <summary>
 /// Sample notification hub. Extend with additional methods as needed.

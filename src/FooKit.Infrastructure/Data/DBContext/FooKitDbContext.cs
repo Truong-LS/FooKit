@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using MyProject.Domain.Entities;
+using FooKit.Domain.Entities;
 using System;
 using System.Reflection;
 
-namespace MyProject.Infrastructure.Data.DBContext
+namespace FooKit.Infrastructure.Data.DBContext
 {
     public class FooKitDbContext : DbContext
     {

@@ -1,7 +1,7 @@
 using System.Threading;
 using Microsoft.Extensions.Primitives;
 
-namespace MyProject.Application.Interfaces.IServices
+namespace FooKit.Application.Interfaces.IServices
 {
     public interface IHomepageCacheSignal
     {

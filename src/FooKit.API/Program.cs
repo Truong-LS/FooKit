@@ -1,10 +1,10 @@
-using MyProject.API.Extensions;
-using MyProject.API.Hubs;
-using MyProject.API.Middlewares;
-using MyProject.API.Workers;
-using MyProject.Application.Configuration;
-using MyProject.Application.DependencyInjection;
-using MyProject.Infrastructure.DependencyInjection;
+using FooKit.API.Extensions;
+using FooKit.API.Hubs;
+using FooKit.API.Middlewares;
+using FooKit.API.Workers;
+using FooKit.Application.Configuration;
+using FooKit.Application.DependencyInjection;
+using FooKit.Infrastructure.DependencyInjection;
 using Scalar.AspNetCore;
 using Hangfire;
 using Hangfire.MemoryStorage;

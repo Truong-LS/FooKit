@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using MyProject.Application.DTOs.DishDtos;
+using FooKit.Application.DTOs.DishDtos;
 
-namespace MyProject.Application.DTOs.HomepageDtos
+namespace FooKit.Application.DTOs.HomepageDtos
 {
     public class HomepageSuggestionResponseDto
     {

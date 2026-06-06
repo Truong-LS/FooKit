@@ -1,7 +1,7 @@
 using System;
-using MyProject.Domain.Enums;
+using FooKit.Domain.Enums;
 
-namespace MyProject.Domain.Entities
+namespace FooKit.Domain.Entities
 {
     public class UserDietaryPreference
     {

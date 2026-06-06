@@ -1,9 +1,9 @@
-using MyProject.Application.DTOs.AffiliateProductDtos;
-using MyProject.Application.DTOs.Common;
+using FooKit.Application.DTOs.AffiliateProductDtos;
+using FooKit.Application.DTOs.Common;
 using System;
 using System.Threading.Tasks;
 
-namespace MyProject.Application.Interfaces.IServices
+namespace FooKit.Application.Interfaces.IServices
 {
     public interface IAffiliateLinkService
     {

@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace MyProject.Application.Interfaces.IServices
+namespace FooKit.Application.Interfaces.IServices
 {
     public interface IAffiliateSyncService
     {

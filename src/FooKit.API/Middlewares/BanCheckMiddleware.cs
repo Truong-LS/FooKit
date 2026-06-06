@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using MyProject.Application.Interfaces.IRepositories;
+using FooKit.Application.Interfaces.IRepositories;
 
-namespace MyProject.API.Middlewares
+namespace FooKit.API.Middlewares
 {
     public class BanCheckMiddleware
     {

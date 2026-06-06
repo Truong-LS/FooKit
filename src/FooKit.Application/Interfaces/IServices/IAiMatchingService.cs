@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MyProject.Application.DTOs.IngredientDtos;
+using FooKit.Application.DTOs.IngredientDtos;
 
-namespace MyProject.Application.Interfaces.IServices
+namespace FooKit.Application.Interfaces.IServices
 {
     public interface IAiMatchingService
     {

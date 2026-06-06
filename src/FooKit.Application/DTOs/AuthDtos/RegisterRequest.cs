@@ -1,4 +1,4 @@
-namespace MyProject.Application.DTOs.AuthDtos;
+namespace FooKit.Application.DTOs.AuthDtos;
 
 public record RegisterRequest(string Username, string Password, string ConfirmPassword);
 

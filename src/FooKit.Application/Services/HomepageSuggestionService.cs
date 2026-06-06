@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using MyProject.Application.DTOs.DishDtos;
-using MyProject.Application.DTOs.HomepageDtos;
-using MyProject.Application.Interfaces.IRepositories;
-using MyProject.Application.Interfaces.IServices;
-using MyProject.Domain.Entities;
-using MyProject.Domain.Enums;
+using FooKit.Application.DTOs.DishDtos;
+using FooKit.Application.DTOs.HomepageDtos;
+using FooKit.Application.Interfaces.IRepositories;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Domain.Entities;
+using FooKit.Domain.Enums;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace MyProject.Application.Services
+namespace FooKit.Application.Services
 {
     public class HomepageSuggestionService : IHomepageSuggestionService
     {

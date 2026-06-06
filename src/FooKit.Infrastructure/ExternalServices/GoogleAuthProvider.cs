@@ -1,8 +1,8 @@
 using Google.Apis.Auth;
 using Microsoft.Extensions.Configuration;
-using MyProject.Application.Interfaces.IServices;
+using FooKit.Application.Interfaces.IServices;
 
-namespace MyProject.Infrastructure.ExternalServices;
+namespace FooKit.Infrastructure.ExternalServices;
 
 public class GoogleAuthProvider : IGoogleAuthProvider
 {

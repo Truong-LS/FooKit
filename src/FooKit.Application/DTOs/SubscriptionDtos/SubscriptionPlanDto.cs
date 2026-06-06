@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MyProject.Application.DTOs.SubscriptionDtos
+namespace FooKit.Application.DTOs.SubscriptionDtos
 {
     public class SubscriptionPlanDto
     {

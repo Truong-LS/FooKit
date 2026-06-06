@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using MyProject.Application.Interfaces.IServices;
-using MyProject.Domain.Entities;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,7 +11,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyProject.Infrastructure.ExternalServices
+namespace FooKit.Infrastructure.ExternalServices
 {
     public class JwtTokenGenerator : IJwtTokenGenerator
     {

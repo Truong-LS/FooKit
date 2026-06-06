@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using MyProject.Application.DTOs.AuthDtos;
-using MyProject.Application.DTOs.Common;
-using MyProject.Application.Interfaces.IServices;
-using MyProject.Domain.Exceptions;
+using FooKit.Application.DTOs.AuthDtos;
+using FooKit.Application.DTOs.Common;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Domain.Exceptions;
 using System.Security.Claims;
 
-namespace MyProject.API.Controllers
+namespace FooKit.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

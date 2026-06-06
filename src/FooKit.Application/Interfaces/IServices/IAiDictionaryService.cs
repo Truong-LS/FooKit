@@ -1,9 +1,9 @@
-using MyProject.Application.DTOs.AiDictionaryDtos;
-using MyProject.Application.DTOs.Common;
+using FooKit.Application.DTOs.AiDictionaryDtos;
+using FooKit.Application.DTOs.Common;
 using System;
 using System.Threading.Tasks;
 
-namespace MyProject.Application.Interfaces.IServices
+namespace FooKit.Application.Interfaces.IServices
 {
     public interface IAiDictionaryService
     {

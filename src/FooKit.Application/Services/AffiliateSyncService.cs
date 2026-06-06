@@ -2,12 +2,12 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using MyProject.Application.Interfaces.IRepositories;
-using MyProject.Application.Interfaces.IServices;
-using MyProject.Domain.Entities;
-using MyProject.Domain.ValueObjects;
+using FooKit.Application.Interfaces.IRepositories;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Domain.Entities;
+using FooKit.Domain.ValueObjects;
 
-namespace MyProject.Application.Services
+namespace FooKit.Application.Services
 {
     public class AffiliateSyncService : IAffiliateSyncService
     {

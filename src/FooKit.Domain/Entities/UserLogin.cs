@@ -1,4 +1,4 @@
-namespace MyProject.Domain.Entities
+namespace FooKit.Domain.Entities
 {
     public class UserLogin
     {

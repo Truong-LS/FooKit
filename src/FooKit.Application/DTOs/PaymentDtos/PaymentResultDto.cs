@@ -1,4 +1,4 @@
-namespace MyProject.Application.DTOs.PaymentDtos
+namespace FooKit.Application.DTOs.PaymentDtos
 {
     public class PaymentResultDto
     {

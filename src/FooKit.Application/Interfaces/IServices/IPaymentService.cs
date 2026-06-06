@@ -1,6 +1,6 @@
-using MyProject.Application.DTOs.PaymentDtos;
+using FooKit.Application.DTOs.PaymentDtos;
 
-namespace MyProject.Application.Interfaces.IServices
+namespace FooKit.Application.Interfaces.IServices
 {
     /// <summary>
     /// Payment business logic service. Orchestrates VNPay operations and database persistence.

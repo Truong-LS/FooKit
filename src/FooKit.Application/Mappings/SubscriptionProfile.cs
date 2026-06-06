@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using AutoMapper;
-using MyProject.Application.DTOs.SubscriptionDtos;
-using MyProject.Domain.Entities;
+using FooKit.Application.DTOs.SubscriptionDtos;
+using FooKit.Domain.Entities;
 
-namespace MyProject.Application.Mappings
+namespace FooKit.Application.Mappings
 {
     public class SubscriptionProfile : Profile
     {

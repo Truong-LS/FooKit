@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MyProject.Application.DTOs.DishDtos
+namespace FooKit.Application.DTOs.DishDtos
 {
     public class DishSuggestionResponseDto
     {

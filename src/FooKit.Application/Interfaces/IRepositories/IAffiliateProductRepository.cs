@@ -1,9 +1,9 @@
-using MyProject.Domain.Entities;
+using FooKit.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MyProject.Application.Interfaces.IRepositories
+namespace FooKit.Application.Interfaces.IRepositories
 {
     public interface IAffiliateProductRepository : IGenericRepository<AffiliateProduct>
     {

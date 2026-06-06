@@ -2,11 +2,14 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyProject.Application.DTOs.AffiliateProductDtos;
-using MyProject.Application.DTOs.Common;
-using MyProject.Application.Interfaces.IServices;
+using FooKit.Application.DTOs.AffiliateProductDtos;
+using FooKit.Application.DTOs.AdminDtos;
+using FooKit.Application.DTOs.Common;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Domain.Exceptions;
+using Hangfire;
 
-namespace MyProject.API.Controllers
+namespace FooKit.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -14,10 +17,12 @@ namespace MyProject.API.Controllers
     public class AffiliateLinksController : ControllerBase
     {
         private readonly IAffiliateLinkService _affiliateLinkService;
+        private readonly IBackgroundJobClient _backgroundJobClient;
 
-        public AffiliateLinksController(IAffiliateLinkService affiliateLinkServiceVal)
+        public AffiliateLinksController(IAffiliateLinkService affiliateLinkService, IBackgroundJobClient backgroundJobClient)
         {
-            _affiliateLinkService = affiliateLinkServiceVal;
+            _affiliateLinkService = affiliateLinkService;
+            _backgroundJobClient = backgroundJobClient;
         }
 
         [HttpGet]
@@ -39,16 +44,23 @@ namespace MyProject.API.Controllers
         {
             if (dto == null)
             {
-                return BadRequest(ApiResponse<object>.Fail("Status payload is required."));
+                throw new BadRequestException("Status payload is required.");
             }
 
             var success = await _affiliateLinkService.ToggleStatusAsync(id, dto);
             if (!success)
             {
-                return NotFound(ApiResponse<object>.Fail("Affiliate link not found."));
+                throw new NotFoundException("Affiliate link not found.");
             }
 
             return Ok(ApiResponse<object>.Ok(null!, $"Affiliate link status toggled successfully to {(dto.IsActive ? "active" : "inactive")}."));
+        }
+
+        [HttpPost("sync")]
+        public IActionResult TriggerAffiliateSync([FromBody] TriggerAffiliateSyncRequest request)
+        {
+            _backgroundJobClient.Enqueue<IAffiliateSyncService>(x => x.ManualSyncAsync(request.ForceSyncAll, request.TargetIngredientId));
+            return Accepted(ApiResponse<object>.Ok(null, "Affiliate sync job has been enqueued successfully."));
         }
     }
 }

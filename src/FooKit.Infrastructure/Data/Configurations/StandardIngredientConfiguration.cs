@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MyProject.Domain.Entities;
-using MyProject.Domain.Enums;
+using FooKit.Domain.Entities;
+using FooKit.Domain.Enums;
 
-namespace MyProject.Infrastructure.Data.Configurations
+namespace FooKit.Infrastructure.Data.Configurations
 {
     public class StandardIngredientConfiguration : IEntityTypeConfiguration<StandardIngredient>
     {

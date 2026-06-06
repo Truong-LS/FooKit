@@ -1,15 +1,15 @@
 using AutoMapper;
-using MyProject.Application.DTOs.Common;
-using MyProject.Application.DTOs.IngredientDtos;
-using MyProject.Application.Interfaces.IRepositories;
-using MyProject.Application.Interfaces.IServices;
-using MyProject.Domain.Entities;
-using MyProject.Domain.Enums;
+using FooKit.Application.DTOs.Common;
+using FooKit.Application.DTOs.IngredientDtos;
+using FooKit.Application.Interfaces.IRepositories;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Domain.Entities;
+using FooKit.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MyProject.Application.Services
+namespace FooKit.Application.Services
 {
     public class IngredientService : IIngredientService
     {

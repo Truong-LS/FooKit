@@ -1,9 +1,9 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MyProject.Domain.Entities;
+using FooKit.Domain.Entities;
 
-namespace MyProject.Infrastructure.Data.Configurations
+namespace FooKit.Infrastructure.Data.Configurations
 {
     public class RoleConfiguration : IEntityTypeConfiguration<Role>
     {

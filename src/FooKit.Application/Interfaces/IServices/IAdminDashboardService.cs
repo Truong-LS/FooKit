@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
-using MyProject.Application.DTOs.AdminDtos;
+using FooKit.Application.DTOs.AdminDtos;
 
-namespace MyProject.Application.Interfaces.IServices
+namespace FooKit.Application.Interfaces.IServices
 {
     public interface IAdminDashboardService
     {

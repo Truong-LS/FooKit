@@ -1,6 +1,6 @@
 using System;
 
-namespace MyProject.Application.DTOs.AffiliateProductDtos
+namespace FooKit.Application.DTOs.AffiliateProductDtos
 {
     public class AffiliateLinkDto
     {

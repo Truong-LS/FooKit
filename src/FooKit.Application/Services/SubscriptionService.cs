@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
-using MyProject.Application.DTOs.SubscriptionDtos;
-using MyProject.Application.Interfaces.IRepositories;
-using MyProject.Application.Interfaces.IServices;
+using FooKit.Application.DTOs.SubscriptionDtos;
+using FooKit.Application.Interfaces.IRepositories;
+using FooKit.Application.Interfaces.IServices;
 
-namespace MyProject.Application.Services
+namespace FooKit.Application.Services
 {
     public class SubscriptionService : ISubscriptionService
     {

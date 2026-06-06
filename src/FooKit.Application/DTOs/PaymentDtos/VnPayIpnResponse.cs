@@ -1,4 +1,4 @@
-namespace MyProject.Application.DTOs.PaymentDtos
+namespace FooKit.Application.DTOs.PaymentDtos
 {
     /// <summary>
     /// Response format required by VNPay IPN callback.

@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace MyProject.Application.Interfaces.IRepositories
+namespace FooKit.Application.Interfaces.IRepositories
 {
     public interface IGenericRepository<T> where T : class
     {

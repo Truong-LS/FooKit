@@ -1,6 +1,6 @@
-using MyProject.Application.DTOs.AffiliateProductDtos;
+using FooKit.Application.DTOs.AffiliateProductDtos;
 
-namespace MyProject.Application.Interfaces.IServices;
+namespace FooKit.Application.Interfaces.IServices;
 
 /// <summary>
 /// Abstraction for searching affiliate products from an external provider.

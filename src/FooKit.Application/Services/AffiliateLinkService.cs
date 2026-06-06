@@ -1,13 +1,13 @@
 using AutoMapper;
-using MyProject.Application.DTOs.AffiliateProductDtos;
-using MyProject.Application.DTOs.Common;
-using MyProject.Application.Interfaces.IServices;
-using MyProject.Application.Interfaces.IRepositories;
+using FooKit.Application.DTOs.AffiliateProductDtos;
+using FooKit.Application.DTOs.Common;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Application.Interfaces.IRepositories;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MyProject.Application.Services
+namespace FooKit.Application.Services
 {
     public class AffiliateLinkService : IAffiliateLinkService
     {

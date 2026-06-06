@@ -1,10 +1,10 @@
-using MyProject.Domain.Entities;
-using MyProject.Domain.Enums;
+using FooKit.Domain.Entities;
+using FooKit.Domain.Enums;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 
-namespace MyProject.Application.Interfaces.IRepositories
+namespace FooKit.Application.Interfaces.IRepositories
 {
     public interface IStandardIngredientRepository : IGenericRepository<StandardIngredient>
     {

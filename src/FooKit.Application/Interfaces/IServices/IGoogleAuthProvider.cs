@@ -1,4 +1,4 @@
-namespace MyProject.Application.Interfaces.IServices;
+namespace FooKit.Application.Interfaces.IServices;
 
 public interface IGoogleAuthProvider
 {

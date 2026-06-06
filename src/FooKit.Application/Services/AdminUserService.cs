@@ -1,15 +1,15 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using MyProject.Application.DTOs.AdminDtos;
-using MyProject.Application.DTOs.Common;
-using MyProject.Application.Interfaces.IRepositories;
-using MyProject.Application.Interfaces.IServices;
-using MyProject.Domain.Entities;
+using FooKit.Application.DTOs.AdminDtos;
+using FooKit.Application.DTOs.Common;
+using FooKit.Application.Interfaces.IRepositories;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Domain.Entities;
 using Microsoft.Extensions.Caching.Memory;
-using MyProject.Domain.Exceptions;
+using FooKit.Domain.Exceptions;
 
-namespace MyProject.Application.Services
+namespace FooKit.Application.Services
 {
     public class AdminUserService : IAdminUserService
     {

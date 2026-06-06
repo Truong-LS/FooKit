@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace MyProject.API.Middlewares;
+namespace FooKit.API.Middlewares;
 
 public class RequestLoggingMiddleware
 {

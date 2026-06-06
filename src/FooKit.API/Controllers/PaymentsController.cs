@@ -1,21 +1,22 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using MyProject.Application.DTOs.Common;
-using MyProject.Application.DTOs.PaymentDtos;
-using MyProject.Application.Interfaces.IServices;
+using FooKit.Application.DTOs.Common;
+using FooKit.Application.DTOs.PaymentDtos;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Domain.Exceptions;
 using System.Security.Claims;
 
-namespace MyProject.API.Controllers
+namespace FooKit.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [EnableRateLimiting("FixedPolicy")]
-    public class PaymentController : ControllerBase
+    public class PaymentsController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
 
-        public PaymentController(IPaymentService paymentService)
+        public PaymentsController(IPaymentService paymentService)
         {
             _paymentService = paymentService;
         }
@@ -32,7 +33,7 @@ namespace MyProject.API.Controllers
 
             if (!Guid.TryParse(userIdString, out var userId))
             {
-                return Unauthorized(ApiResponse<object?>.Fail("Unable to determine a valid user identity."));
+                throw new UnauthenticatedException("Unable to determine a valid user identity.");
             }
 
             var ipAddress = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString() ?? "127.0.0.1";
@@ -52,12 +53,12 @@ namespace MyProject.API.Controllers
             var queryParams = Request.Query.ToDictionary(x => x.Key, x => x.Value.ToString());
             var result = await _paymentService.ProcessReturnAsync(queryParams);
 
-            if (result.Success)
+            if (!result.Success)
             {
-                return Ok(ApiResponse<PaymentResultDto>.Ok(result, "Payment completed successfully."));
+                throw new BadRequestException(result.Message);
             }
 
-            return BadRequest(ApiResponse<PaymentResultDto>.Fail(result.Message));
+            return Ok(ApiResponse<PaymentResultDto>.Ok(result, "Payment completed successfully."));
         }
 
         /// <summary>

@@ -1,10 +1,10 @@
-using MyProject.Application.DTOs.PaymentDtos;
-using MyProject.Application.Interfaces.IRepositories;
-using MyProject.Application.Interfaces.IServices;
-using MyProject.Domain.Entities;
-using MyProject.Domain.Enums;
+using FooKit.Application.DTOs.PaymentDtos;
+using FooKit.Application.Interfaces.IRepositories;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Domain.Entities;
+using FooKit.Domain.Enums;
 
-namespace MyProject.Application.Services
+namespace FooKit.Application.Services
 {
     public class PaymentService : IPaymentService
     {

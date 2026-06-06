@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using MyProject.Application.Interfaces.IRepositories;
-using MyProject.Domain.Entities;
-using MyProject.Infrastructure.Data.DBContext;
+using FooKit.Application.Interfaces.IRepositories;
+using FooKit.Domain.Entities;
+using FooKit.Infrastructure.Data.DBContext;
 
-namespace MyProject.Infrastructure.Repositories
+namespace FooKit.Infrastructure.Repositories
 {
     public class UserRepository : GenericRepository<User>, IUserRepository
     {

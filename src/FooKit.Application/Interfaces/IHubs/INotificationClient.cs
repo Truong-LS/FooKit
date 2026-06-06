@@ -1,4 +1,4 @@
-namespace MyProject.Application.Interfaces.IHubs;
+namespace FooKit.Application.Interfaces.IHubs;
 
 /// <summary>
 /// Defines methods the server can invoke on connected SignalR clients.

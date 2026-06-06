@@ -1,4 +1,4 @@
-namespace MyProject.Application.Configuration
+namespace FooKit.Application.Configuration
 {
     public class SpoonacularOptions
     {

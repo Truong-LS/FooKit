@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MyProject.Application.DTOs.SpoonacularDtos;
+using FooKit.Application.DTOs.SpoonacularDtos;
 
-namespace MyProject.Application.Interfaces.IServices
+namespace FooKit.Application.Interfaces.IServices
 {
     public interface ISpoonacularService
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace MyProject.Application.DTOs.AiDictionaryDtos
+namespace FooKit.Application.DTOs.AiDictionaryDtos
 {
     public class AiDictionaryDto
     {

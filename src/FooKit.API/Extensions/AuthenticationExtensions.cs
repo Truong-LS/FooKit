@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace MyProject.API.Extensions
+namespace FooKit.API.Extensions
 {
     public static class AuthenticationExtensions
     {

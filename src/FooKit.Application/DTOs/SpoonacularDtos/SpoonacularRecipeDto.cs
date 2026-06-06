@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace MyProject.Application.DTOs.SpoonacularDtos
+namespace FooKit.Application.DTOs.SpoonacularDtos
 {
     public class SpoonacularRecipeDto
     {

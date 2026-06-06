@@ -1,7 +1,7 @@
-using MyProject.Domain.Entities;
+using FooKit.Domain.Entities;
 using System.Security.Claims;
 
-namespace MyProject.Application.Interfaces.IServices
+namespace FooKit.Application.Interfaces.IServices
 {
     public interface IJwtTokenGenerator
     {

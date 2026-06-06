@@ -2,10 +2,10 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Configuration;
-using MyProject.Application.Interfaces.IServices;
-using MyProject.Domain.Entities;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Domain.Entities;
 
-namespace MyProject.Infrastructure.ExternalServices
+namespace FooKit.Infrastructure.ExternalServices
 {
     public class VnPayService : IVnPayService
     {

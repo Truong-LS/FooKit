@@ -1,7 +1,7 @@
 using System;
-using MyProject.Domain.ValueObjects;
+using FooKit.Domain.ValueObjects;
 
-namespace MyProject.Domain.Entities
+namespace FooKit.Domain.Entities
 {
     public class SuggestionResult
     {

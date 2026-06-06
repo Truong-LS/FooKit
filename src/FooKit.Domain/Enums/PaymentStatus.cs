@@ -1,4 +1,4 @@
-namespace MyProject.Domain.Enums
+namespace FooKit.Domain.Enums
 {
     public enum PaymentStatus
     {

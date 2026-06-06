@@ -1,7 +1,7 @@
 using FluentValidation;
-using MyProject.Application.DTOs.AuthDtos;
+using FooKit.Application.DTOs.AuthDtos;
 
-namespace MyProject.Application.Validators
+namespace FooKit.Application.Validators
 {
     public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
     {

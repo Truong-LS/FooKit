@@ -1,11 +1,11 @@
 using AutoMapper;
-using MyProject.Application.DTOs.AuthDtos;
-using MyProject.Application.DTOs.IngredientDtos;
-using MyProject.Application.DTOs.AiDictionaryDtos;
-using MyProject.Application.DTOs.AffiliateProductDtos;
-using MyProject.Domain.Entities;
+using FooKit.Application.DTOs.AuthDtos;
+using FooKit.Application.DTOs.IngredientDtos;
+using FooKit.Application.DTOs.AiDictionaryDtos;
+using FooKit.Application.DTOs.AffiliateProductDtos;
+using FooKit.Domain.Entities;
 
-namespace MyProject.Application.Mappings
+namespace FooKit.Application.Mappings
 {
     public class MappingProfile : Profile
     {

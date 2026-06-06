@@ -1,4 +1,4 @@
-namespace MyProject.Application.Configuration;
+namespace FooKit.Application.Configuration;
 
 /// <summary>
 /// Configuration options for the Auto-Search Affiliate background worker.

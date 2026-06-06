@@ -1,6 +1,6 @@
-using MyProject.Application.DTOs.AuthDtos;
+using FooKit.Application.DTOs.AuthDtos;
 
-namespace MyProject.Application.Interfaces.IServices
+namespace FooKit.Application.Interfaces.IServices
 {
     public interface IAuthService
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace MyProject.Application.DTOs.IngredientDtos
+namespace FooKit.Application.DTOs.IngredientDtos
 {
     public class StandardIngredientDto
     {

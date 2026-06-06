@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using MyProject.Application.Interfaces.IRepositories;
-using MyProject.Infrastructure.Data.DBContext;
+using FooKit.Application.Interfaces.IRepositories;
+using FooKit.Infrastructure.Data.DBContext;
 using System.Linq.Expressions;
 
-namespace MyProject.Infrastructure.Repositories
+namespace FooKit.Infrastructure.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {

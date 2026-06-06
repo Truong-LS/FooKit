@@ -1,8 +1,8 @@
 using System.Threading;
 using Microsoft.Extensions.Primitives;
-using MyProject.Application.Interfaces.IServices;
+using FooKit.Application.Interfaces.IServices;
 
-namespace MyProject.Application.Services
+namespace FooKit.Application.Services
 {
     public class HomepageCacheSignal : IHomepageCacheSignal
     {

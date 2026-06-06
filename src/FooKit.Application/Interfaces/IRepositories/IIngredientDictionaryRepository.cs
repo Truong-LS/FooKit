@@ -1,8 +1,8 @@
-using MyProject.Domain.Entities;
+using FooKit.Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MyProject.Application.Interfaces.IRepositories
+namespace FooKit.Application.Interfaces.IRepositories
 {
     public interface IIngredientDictionaryRepository : IGenericRepository<IngredientDictionary>
     {

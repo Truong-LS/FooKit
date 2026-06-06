@@ -3,22 +3,23 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyProject.Application.DTOs.AiDictionaryDtos;
-using MyProject.Application.DTOs.Common;
-using MyProject.Application.Interfaces.IServices;
+using FooKit.Application.DTOs.AiDictionaryDtos;
+using FooKit.Application.DTOs.Common;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Domain.Exceptions;
 
-namespace MyProject.API.Controllers
+namespace FooKit.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "Admin")]
-    public class AiDictionaryController : ControllerBase
+    public class AiDictionariesController : ControllerBase
     {
         private readonly IAiDictionaryService _aiDictionaryService;
 
-        public AiDictionaryController(IAiDictionaryService aiDictionaryServiceVal)
+        public AiDictionariesController(IAiDictionaryService aiDictionaryService)
         {
-            _aiDictionaryService = aiDictionaryServiceVal;
+            _aiDictionaryService = aiDictionaryService;
         }
 
         [HttpGet]
@@ -39,23 +40,16 @@ namespace MyProject.API.Controllers
         {
             if (dto == null || dto.NewStandardIngredientId == Guid.Empty)
             {
-                return BadRequest(ApiResponse<object>.Fail("New standard ingredient mapping ID is required."));
+                throw new BadRequestException("New standard ingredient mapping ID is required.");
             }
 
-            try
+            var success = await _aiDictionaryService.UpdateMappingAsync(id, dto);
+            if (!success)
             {
-                var success = await _aiDictionaryService.UpdateMappingAsync(id, dto);
-                if (!success)
-                {
-                    return NotFound(ApiResponse<object>.Fail("AI dictionary record not found."));
-                }
+                throw new NotFoundException("AI dictionary record not found.");
+            }
 
-                return Ok(ApiResponse<object>.Ok(null!, "AI dictionary mapping updated successfully."));
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return BadRequest(ApiResponse<object>.Fail(ex.Message));
-            }
+            return Ok(ApiResponse<object>.Ok(null!, "AI dictionary mapping updated successfully."));
         }
 
         [HttpDelete("{id}")]
@@ -64,7 +58,7 @@ namespace MyProject.API.Controllers
             var success = await _aiDictionaryService.DeleteKeywordAsync(id);
             if (!success)
             {
-                return NotFound(ApiResponse<object>.Fail("AI dictionary record not found."));
+                throw new NotFoundException("AI dictionary record not found.");
             }
 
             return Ok(ApiResponse<object>.Ok(null!, "English keyword completely removed from AI dictionary cache."));

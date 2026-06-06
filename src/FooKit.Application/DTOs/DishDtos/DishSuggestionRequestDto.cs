@@ -1,6 +1,6 @@
-using MyProject.Domain.Enums;
+using FooKit.Domain.Enums;
 
-namespace MyProject.Application.DTOs.DishDtos
+namespace FooKit.Application.DTOs.DishDtos
 {
     public class DishSuggestionRequestDto
     {

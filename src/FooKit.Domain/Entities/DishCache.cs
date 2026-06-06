@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MyProject.Domain.Entities
+namespace FooKit.Domain.Entities
 {
     public class DishCache
     {

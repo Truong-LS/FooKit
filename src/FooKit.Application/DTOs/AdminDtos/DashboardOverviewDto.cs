@@ -1,6 +1,6 @@
 using System;
 
-namespace MyProject.Application.DTOs.AdminDtos
+namespace FooKit.Application.DTOs.AdminDtos
 {
     public class DashboardOverviewDto
     {

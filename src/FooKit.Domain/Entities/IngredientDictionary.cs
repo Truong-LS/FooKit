@@ -1,6 +1,6 @@
 using System;
 
-namespace MyProject.Domain.Entities
+namespace FooKit.Domain.Entities
 {
     public class IngredientDictionary
     {

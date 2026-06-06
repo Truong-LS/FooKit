@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using MyProject.Domain.Enums;
-using MyProject.Domain.ValueObjects;
+using FooKit.Domain.Enums;
+using FooKit.Domain.ValueObjects;
 
-namespace MyProject.Domain.Entities
+namespace FooKit.Domain.Entities
 {
     public class SuggestionRequest
     {

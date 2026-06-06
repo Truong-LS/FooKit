@@ -8,13 +8,13 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MyProject.Application.Configuration;
-using MyProject.Application.DTOs.SpoonacularDtos;
-using MyProject.Application.Interfaces.IServices;
-using MyProject.Domain.Entities;
-using MyProject.Infrastructure.Data.DBContext;
+using FooKit.Application.Configuration;
+using FooKit.Application.DTOs.SpoonacularDtos;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Domain.Entities;
+using FooKit.Infrastructure.Data.DBContext;
 
-namespace MyProject.Infrastructure.ExternalServices
+namespace FooKit.Infrastructure.ExternalServices
 {
     public class SpoonacularService : ISpoonacularService
     {

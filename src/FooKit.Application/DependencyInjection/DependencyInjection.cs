@@ -1,11 +1,11 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using MyProject.Application.Interfaces.IServices;
-using MyProject.Application.Mappings;
-using MyProject.Application.Services;
-using MyProject.Application.Validators;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Application.Mappings;
+using FooKit.Application.Services;
+using FooKit.Application.Validators;
 
-namespace MyProject.Application.DependencyInjection;
+namespace FooKit.Application.DependencyInjection;
 
 public static class DependencyInjection
 {
@@ -25,6 +25,7 @@ public static class DependencyInjection
         services.AddScoped<IAffiliateLinkService, AffiliateLinkService>();
         services.AddScoped<IAffiliateSyncService, AffiliateSyncService>();
         services.AddScoped<IAdminUserService, AdminUserService>();
+        services.AddScoped<IUserService, UserService>();
         services.AddSingleton<IHomepageCacheSignal, HomepageCacheSignal>();
 
         return services;

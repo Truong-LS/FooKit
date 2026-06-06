@@ -2,13 +2,12 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyProject.Application.DTOs.Common;
-using MyProject.Application.Interfaces.IServices;
-using MyProject.Application.DTOs.AdminDtos;
-using Hangfire;
-using Microsoft.Extensions.Caching.Memory;
+using FooKit.Application.DTOs.Common;
+using FooKit.Application.Interfaces.IServices;
+using FooKit.Application.DTOs.AdminDtos;
+using FooKit.Domain.Exceptions;
 
-namespace MyProject.API.Controllers
+namespace FooKit.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -16,22 +15,13 @@ namespace MyProject.API.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IAdminDashboardService _dashboardService;
-        private readonly IBackgroundJobClient _backgroundJobClient;
-        private readonly IMemoryCache _memoryCache;
-        private readonly IHomepageCacheSignal _cacheSignal;
         private readonly IAdminUserService _adminUserService;
 
         public AdminController(
             IAdminDashboardService dashboardService,
-            IBackgroundJobClient backgroundJobClient,
-            IMemoryCache memoryCache,
-            IHomepageCacheSignal cacheSignal,
             IAdminUserService adminUserService)
         {
             _dashboardService = dashboardService;
-            _backgroundJobClient = backgroundJobClient;
-            _memoryCache = memoryCache;
-            _cacheSignal = cacheSignal;
             _adminUserService = adminUserService;
         }
 
@@ -54,33 +44,11 @@ namespace MyProject.API.Controllers
 
             if (start > end)
             {
-                return BadRequest(ApiResponse<object>.Fail("Start date cannot be after end date."));
+                throw new BadRequestException("Start date cannot be after end date.");
             }
 
             var apiUsage = await _dashboardService.GetApiUsageAsync(start, end);
             return Ok(ApiResponse<object>.Ok(apiUsage, "API usage metrics retrieved successfully."));
-        }
-
-        [HttpPost("jobs/trigger-affiliate-sync")]
-        public IActionResult TriggerAffiliateSync([FromBody] TriggerAffiliateSyncRequest request)
-        {
-            _backgroundJobClient.Enqueue<IAffiliateSyncService>(x => x.ManualSyncAsync(request.ForceSyncAll, request.TargetIngredientId));
-            return Accepted(ApiResponse<object>.Ok(null, "Affiliate sync job has been enqueued successfully."));
-        }
-
-        [HttpPost("jobs/clear-homepage-cache")]
-        public IActionResult ClearHomepageCache([FromBody] ClearHomepageCacheRequest request)
-        {
-            if (!string.IsNullOrEmpty(request?.TargetUserId))
-            {
-                _memoryCache.Remove($"HomepageCache:User_{request.TargetUserId}");
-            }
-            else
-            {
-                _cacheSignal.ResetToken();
-            }
-            
-            return Ok(ApiResponse<object>.Ok(null, "Homepage cache cleared successfully. Users will receive newly generated meal recommendations."));
         }
 
         [HttpGet("users")]

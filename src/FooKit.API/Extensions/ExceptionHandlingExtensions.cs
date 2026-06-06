@@ -1,6 +1,6 @@
-using MyProject.API.Middlewares;
+using FooKit.API.Middlewares;
 
-namespace MyProject.API.Extensions
+namespace FooKit.API.Extensions
 {
     public static class ExceptionHandlingExtensions
     {
