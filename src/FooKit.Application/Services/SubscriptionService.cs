@@ -24,7 +24,8 @@ namespace FooKit.Application.Services
         public async Task<IEnumerable<SubscriptionPlanDto>> GetAllPlansAsync()
         {
             var plans = await _unitOfWork.SubscriptionPlans.GetAllAsync();
-            return _mapper.Map<IEnumerable<SubscriptionPlanDto>>(plans);
+            var activePlans = plans.Where(p => p.IsActive);
+            return _mapper.Map<IEnumerable<SubscriptionPlanDto>>(activePlans);
         }
 
         public async Task<UserSubscriptionDto> GetCurrentSubscriptionAsync(Guid userId)

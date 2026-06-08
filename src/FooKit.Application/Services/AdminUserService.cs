@@ -16,12 +16,14 @@ namespace FooKit.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMemoryCache _memoryCache;
         private readonly IImageService _imageService;
+        private readonly AutoMapper.IMapper _mapper;
 
-        public AdminUserService(IUnitOfWork unitOfWork, IMemoryCache memoryCache, IImageService imageService)
+        public AdminUserService(IUnitOfWork unitOfWork, IMemoryCache memoryCache, IImageService imageService, AutoMapper.IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _memoryCache = memoryCache;
             _imageService = imageService;
+            _mapper = mapper;
         }
 
         public async Task<PagedResult<UserAdminResponseDto>> GetUsersAsync(GetUsersRequestDto request)
@@ -29,36 +31,7 @@ namespace FooKit.Application.Services
             var (users, totalCount) = await _unitOfWork.Users.GetUsersWithSubscriptionsAsync(
                 request.Search, request.IsPremium, request.IsActive, request.Page, request.Size);
 
-            var items = users.Select(u =>
-            {
-                var now = DateTime.UtcNow;
-                var activeOrLatestSub = u.UserSubscriptions
-                    .Where(s => s.IsActive)
-                    .OrderByDescending(s => s.EndDate)
-                    .FirstOrDefault();
-
-                UserAdminSubscriptionStatusDto? subStatus = null;
-                if (activeOrLatestSub != null)
-                {
-                    subStatus = new UserAdminSubscriptionStatusDto
-                    {
-                        IsPremium = activeOrLatestSub.EndDate > now,
-                        PlanName = activeOrLatestSub.SubscriptionPlan?.PlanName,
-                        EndDate = activeOrLatestSub.EndDate
-                    };
-                }
-
-                return new UserAdminResponseDto
-                {
-                    UserId = u.Id,
-                    FullName = u.FullName,
-                    Email = u.Email,
-                    IsActive = u.IsActive,
-                    CreatedAt = u.CreatedAt,
-                    SubscriptionStatus = subStatus,
-                    AvatarUrl = u.AvatarUrl
-                };
-            }).ToList();
+            var items = _mapper.Map<IEnumerable<UserAdminResponseDto>>(users);
 
             return new PagedResult<UserAdminResponseDto>
             {
@@ -143,16 +116,38 @@ namespace FooKit.Application.Services
             _unitOfWork.Users.Update(user);
             await _unitOfWork.SaveChangesAsync();
 
-            return new UserAdminResponseDto
+            return _mapper.Map<UserAdminResponseDto>(user);
+        }
+        
+        public async Task<UserAdminResponseDto> CreateUserAsync(CreateUserAdminRequestDto request)
+        {
+            // Simple check for existing username/email
+            var existingUser = await _unitOfWork.Users.GetByUsernameAsync(request.Username);
+            if (existingUser != null)
+                throw new ConflictException("Username already exists.");
+
+            var userByEmail = await _unitOfWork.Users.GetByEmailAsync(request.Email);
+            if (userByEmail != null)
+                throw new ConflictException("Email already exists.");
+
+            var userRole = (await _unitOfWork.Roles.FindAsync(r => r.Name == "User")).FirstOrDefault();
+            if (userRole == null)
+                throw new Exception("Default user role not found.");
+
+            var newUser = new User
             {
-                UserId = user.Id,
-                FullName = user.FullName,
-                Email = user.Email,
-                Username = user.Username,
-                IsActive = user.IsActive,
-                CreatedAt = user.CreatedAt,
-                AvatarUrl = user.AvatarUrl
+                Username = request.Username,
+                Email = request.Email,
+                FullName = request.FullName,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                RoleId = userRole.Id,
+                IsActive = true
             };
+
+            await _unitOfWork.Users.AddAsync(newUser);
+            await _unitOfWork.SaveChangesAsync();
+
+            return _mapper.Map<UserAdminResponseDto>(newUser);
         }
     }
 }

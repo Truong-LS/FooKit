@@ -26,6 +26,7 @@ public static class DependencyInjection
         services.AddScoped<IAffiliateSyncService, AffiliateSyncService>();
         services.AddScoped<IAdminUserService, AdminUserService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IAdminSubscriptionPlanService, AdminSubscriptionPlanService>();
         services.AddSingleton<IHomepageCacheSignal, HomepageCacheSignal>();
 
         return services;

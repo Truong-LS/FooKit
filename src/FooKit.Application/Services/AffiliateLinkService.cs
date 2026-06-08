@@ -47,5 +47,43 @@ namespace FooKit.Application.Services
 
             return true;
         }
+        public async Task<AffiliateLinkDto> CreateAffiliateLinkAsync(CreateAffiliateLinkDto request)
+        {
+            var affiliateProduct = new Domain.Entities.AffiliateProduct
+            {
+                StandardIngredientId = request.StandardIngredientId,
+                ProductName = request.ProductName,
+                ProductUrl = request.ProductUrl,
+                CurrentPrice = new Domain.ValueObjects.Money(request.CurrentPriceAmount, request.CurrentPriceCurrency),
+                Platform = request.Platform,
+                LastUpdatedPriceAt = DateTime.UtcNow,
+                IsActive = true
+            };
+
+            await _unitOfWork.AffiliateProducts.AddAsync(affiliateProduct);
+            await _unitOfWork.SaveChangesAsync();
+
+            return _mapper.Map<AffiliateLinkDto>(affiliateProduct);
+        }
+
+        public async Task<AffiliateLinkDto> UpdateAffiliateLinkAsync(Guid id, UpdateAffiliateLinkDto request)
+        {
+            var affiliateProduct = await _unitOfWork.AffiliateProducts.GetByIdAsync(id);
+            if (affiliateProduct == null)
+            {
+                throw new Domain.Exceptions.NotFoundException("Affiliate product not found.");
+            }
+
+            affiliateProduct.ProductName = request.ProductName;
+            affiliateProduct.ProductUrl = request.ProductUrl;
+            affiliateProduct.CurrentPrice = new Domain.ValueObjects.Money(request.CurrentPriceAmount, request.CurrentPriceCurrency);
+            affiliateProduct.Platform = request.Platform;
+            affiliateProduct.IsActive = request.IsActive;
+
+            _unitOfWork.AffiliateProducts.Update(affiliateProduct);
+            await _unitOfWork.SaveChangesAsync();
+
+            return _mapper.Map<AffiliateLinkDto>(affiliateProduct);
+        }
     }
 }

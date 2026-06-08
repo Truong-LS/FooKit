@@ -11,5 +11,6 @@ namespace FooKit.Application.Interfaces.IServices
         Task<UserAdminSubscriptionStatusDto> GrantPremiumAsync(Guid userId, GrantPremiumRequestDto request);
         Task ToggleBanAsync(Guid userId, ToggleBanRequestDto request);
         Task<UserAdminResponseDto> UpdateUserAsync(Guid userId, UpdateUserAdminRequestDto request);
+        Task<UserAdminResponseDto> CreateUserAsync(CreateUserAdminRequestDto request);
     }
 }

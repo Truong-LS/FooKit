@@ -11,6 +11,7 @@ namespace FooKit.Domain.Entities
         public Money Price { get; set; } = Money.Zero();
         public int DurationInDays { get; set; }
         public string FeaturesJson { get; set; } = "[]";
+        public bool IsActive { get; set; } = true;
 
         public virtual ICollection<UserSubscription> UserSubscriptions { get; set; } = new List<UserSubscription>();
     }

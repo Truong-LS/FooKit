@@ -62,5 +62,19 @@ namespace FooKit.API.Controllers
             _backgroundJobClient.Enqueue<IAffiliateSyncService>(x => x.ManualSyncAsync(request.ForceSyncAll, request.TargetIngredientId));
             return Accepted(ApiResponse<object>.Ok(null, "Affiliate sync job has been enqueued successfully."));
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateAffiliateLink([FromBody] CreateAffiliateLinkDto request)
+        {
+            var result = await _affiliateLinkService.CreateAffiliateLinkAsync(request);
+            return CreatedAtAction(nameof(GetAffiliateLinks), new { id = result.Id }, ApiResponse<AffiliateLinkDto>.Ok(result, "Affiliate link created successfully."));
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAffiliateLink(Guid id, [FromBody] UpdateAffiliateLinkDto request)
+        {
+            var result = await _affiliateLinkService.UpdateAffiliateLinkAsync(id, request);
+            return Ok(ApiResponse<AffiliateLinkDto>.Ok(result, "Affiliate link updated successfully."));
+        }
     }
 }

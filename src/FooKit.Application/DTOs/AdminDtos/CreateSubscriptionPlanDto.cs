@@ -1,16 +1,14 @@
 using System;
 using System.Collections.Generic;
 
-namespace FooKit.Application.DTOs.SubscriptionDtos
+namespace FooKit.Application.DTOs.AdminDtos
 {
-    public class SubscriptionPlanDto
+    public class CreateSubscriptionPlanDto
     {
-        public Guid Id { get; set; }
         public string PlanName { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public string Currency { get; set; } = "VND";
         public int DurationInDays { get; set; }
         public List<string> Features { get; set; } = new();
-        public bool IsActive { get; set; }
     }
 }

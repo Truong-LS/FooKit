@@ -9,5 +9,7 @@ namespace FooKit.Application.Interfaces.IServices
     {
         Task<PagedResult<AffiliateLinkDto>> GetAffiliateLinksAsync(int page, int size, bool? isActive, Guid? ingredientId);
         Task<bool> ToggleStatusAsync(Guid id, ToggleAffiliateStatusDto dto);
+        Task<AffiliateLinkDto> CreateAffiliateLinkAsync(CreateAffiliateLinkDto request);
+        Task<AffiliateLinkDto> UpdateAffiliateLinkAsync(Guid id, UpdateAffiliateLinkDto request);
     }
 }

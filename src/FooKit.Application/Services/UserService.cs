@@ -11,11 +11,13 @@ namespace FooKit.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IImageService _imageService;
+        private readonly AutoMapper.IMapper _mapper;
 
-        public UserService(IUnitOfWork unitOfWork, IImageService imageService)
+        public UserService(IUnitOfWork unitOfWork, IImageService imageService, AutoMapper.IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _imageService = imageService;
+            _mapper = mapper;
         }
 
         public async Task<bool> ChangePasswordAsync(Guid userId, ChangePasswordRequest request)
@@ -68,14 +70,7 @@ namespace FooKit.Application.Services
             _unitOfWork.Users.Update(user);
             await _unitOfWork.SaveChangesAsync();
 
-            return new UserProfileResponse
-            {
-                Id = user.Id,
-                Username = user.Username,
-                Email = user.Email,
-                FullName = user.FullName,
-                AvatarUrl = user.AvatarUrl
-            };
+            return _mapper.Map<UserProfileResponse>(user);
         }
     }
 }

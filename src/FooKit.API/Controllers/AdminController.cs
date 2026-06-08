@@ -58,6 +58,13 @@ namespace FooKit.API.Controllers
             return Ok(ApiResponse<object>.Ok(result, "Users retrieved successfully."));
         }
 
+        [HttpPost("users")]
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserAdminRequestDto request)
+        {
+            var result = await _adminUserService.CreateUserAsync(request);
+            return Ok(ApiResponse<UserAdminResponseDto>.Ok(result, "User created successfully."));
+        }
+
         [HttpPut("users/{userId}/grant-premium")]
         public async Task<IActionResult> GrantPremium(Guid userId, [FromBody] GrantPremiumRequestDto request)
         {
