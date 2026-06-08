@@ -16,16 +16,13 @@ namespace FooKit.API.Controllers
     {
         private readonly IAdminDashboardService _dashboardService;
         private readonly IAdminUserService _adminUserService;
-        private readonly IAdminSubscriptionPlanService _adminSubscriptionPlanService;
 
         public AdminController(
             IAdminDashboardService dashboardService,
-            IAdminUserService adminUserService,
-            IAdminSubscriptionPlanService adminSubscriptionPlanService)
+            IAdminUserService adminUserService)
         {
             _dashboardService = dashboardService;
             _adminUserService = adminUserService;
-            _adminSubscriptionPlanService = adminSubscriptionPlanService;
         }
 
         [HttpGet("overview")]
@@ -88,34 +85,6 @@ namespace FooKit.API.Controllers
         {
             var result = await _adminUserService.UpdateUserAsync(userId, request);
             return Ok(ApiResponse<UserAdminResponseDto>.Ok(result, "User profile updated successfully."));
-        }
-
-        [HttpGet("subscription-plans")]
-        public async Task<IActionResult> GetSubscriptionPlans([FromQuery] GetSubscriptionPlansRequestDto request)
-        {
-            var result = await _adminSubscriptionPlanService.GetSubscriptionPlansAsync(request);
-            return Ok(ApiResponse<PagedResult<FooKit.Application.DTOs.SubscriptionDtos.SubscriptionPlanDto>>.Ok(result, "Subscription plans retrieved successfully."));
-        }
-
-        [HttpPost("subscription-plans")]
-        public async Task<IActionResult> CreateSubscriptionPlan([FromBody] CreateSubscriptionPlanDto request)
-        {
-            var result = await _adminSubscriptionPlanService.CreateSubscriptionPlanAsync(request);
-            return CreatedAtAction(nameof(GetSubscriptionPlans), new { id = result.Id }, ApiResponse<FooKit.Application.DTOs.SubscriptionDtos.SubscriptionPlanDto>.Ok(result, "Subscription plan created successfully."));
-        }
-
-        [HttpPut("subscription-plans/{id}")]
-        public async Task<IActionResult> UpdateSubscriptionPlan(Guid id, [FromBody] UpdateSubscriptionPlanDto request)
-        {
-            var result = await _adminSubscriptionPlanService.UpdateSubscriptionPlanAsync(id, request);
-            return Ok(ApiResponse<FooKit.Application.DTOs.SubscriptionDtos.SubscriptionPlanDto>.Ok(result, "Subscription plan updated successfully."));
-        }
-
-        [HttpDelete("subscription-plans/{id}")]
-        public async Task<IActionResult> DeleteSubscriptionPlan(Guid id)
-        {
-            await _adminSubscriptionPlanService.DeleteSubscriptionPlanAsync(id);
-            return Ok(ApiResponse<object>.Ok(null!, "Subscription plan soft-deleted successfully."));
         }
     }
 }

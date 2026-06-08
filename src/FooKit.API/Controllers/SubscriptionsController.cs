@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using FooKit.Application.DTOs.Common;
 using FooKit.Application.DTOs.SubscriptionDtos;
+using FooKit.Application.DTOs.AdminDtos;
 using FooKit.Application.Interfaces.IServices;
 using FooKit.Domain.Exceptions;
 using System.Collections.Generic;
@@ -16,10 +17,14 @@ namespace FooKit.API.Controllers
     public class SubscriptionsController : ControllerBase
     {
         private readonly ISubscriptionService _subscriptionService;
+        private readonly IAdminSubscriptionPlanService _adminSubscriptionPlanService;
 
-        public SubscriptionsController(ISubscriptionService subscriptionService)
+        public SubscriptionsController(
+            ISubscriptionService subscriptionService,
+            IAdminSubscriptionPlanService adminSubscriptionPlanService)
         {
             _subscriptionService = subscriptionService;
+            _adminSubscriptionPlanService = adminSubscriptionPlanService;
         }
 
         [HttpGet("plans")]
@@ -69,6 +74,38 @@ namespace FooKit.API.Controllers
 
             await _subscriptionService.CancelSubscriptionAsync(userId);
             return Ok(ApiResponse<object?>.Ok(null, "Subscription cancelled successfully."));
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("admin/plans")]
+        public async Task<IActionResult> GetAdminSubscriptionPlans([FromQuery] GetSubscriptionPlansRequestDto request)
+        {
+            var result = await _adminSubscriptionPlanService.GetSubscriptionPlansAsync(request);
+            return Ok(ApiResponse<PagedResult<SubscriptionPlanDto>>.Ok(result, "Subscription plans retrieved successfully."));
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("admin/plans")]
+        public async Task<IActionResult> CreateSubscriptionPlan([FromBody] CreateSubscriptionPlanDto request)
+        {
+            var result = await _adminSubscriptionPlanService.CreateSubscriptionPlanAsync(request);
+            return CreatedAtAction(nameof(GetAdminSubscriptionPlans), new { id = result.Id }, ApiResponse<SubscriptionPlanDto>.Ok(result, "Subscription plan created successfully."));
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("admin/plans/{id}")]
+        public async Task<IActionResult> UpdateSubscriptionPlan(Guid id, [FromBody] UpdateSubscriptionPlanDto request)
+        {
+            var result = await _adminSubscriptionPlanService.UpdateSubscriptionPlanAsync(id, request);
+            return Ok(ApiResponse<SubscriptionPlanDto>.Ok(result, "Subscription plan updated successfully."));
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("admin/plans/{id}")]
+        public async Task<IActionResult> DeleteSubscriptionPlan(Guid id)
+        {
+            await _adminSubscriptionPlanService.DeleteSubscriptionPlanAsync(id);
+            return Ok(ApiResponse<object>.Ok(null!, "Subscription plan soft-deleted successfully."));
         }
     }
 }
