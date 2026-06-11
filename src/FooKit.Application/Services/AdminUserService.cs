@@ -17,13 +17,15 @@ namespace FooKit.Application.Services
         private readonly IMemoryCache _memoryCache;
         private readonly IImageService _imageService;
         private readonly AutoMapper.IMapper _mapper;
+        private readonly ISubscriptionService _subscriptionService;
 
-        public AdminUserService(IUnitOfWork unitOfWork, IMemoryCache memoryCache, IImageService imageService, AutoMapper.IMapper mapper)
+        public AdminUserService(IUnitOfWork unitOfWork, IMemoryCache memoryCache, IImageService imageService, AutoMapper.IMapper mapper, ISubscriptionService subscriptionService)
         {
             _unitOfWork = unitOfWork;
             _memoryCache = memoryCache;
             _imageService = imageService;
             _mapper = mapper;
+            _subscriptionService = subscriptionService;
         }
 
         public async Task<PagedResult<UserAdminResponseDto>> GetUsersAsync(GetUsersRequestDto request)
@@ -50,25 +52,7 @@ namespace FooKit.Application.Services
             var plan = await _unitOfWork.SubscriptionPlans.GetByIdAsync(request.PlanId);
             if (plan == null) throw new NotFoundException($"Subscription plan with ID {request.PlanId} not found.");
 
-            var activeSub = await _unitOfWork.UserSubscriptions.GetActiveSubscriptionAsync(userId);
-            
-            var startDate = DateTime.UtcNow;
-            if (activeSub != null && activeSub.IsActive && activeSub.EndDate > startDate)
-            {
-                startDate = activeSub.EndDate;
-            }
-
-            var newSub = new UserSubscription
-            {
-                UserId = userId,
-                PlanId = request.PlanId,
-                StartDate = startDate,
-                EndDate = startDate.AddDays(plan.DurationInDays),
-                IsActive = true
-            };
-
-            await _unitOfWork.UserSubscriptions.AddAsync(newSub);
-            await _unitOfWork.SaveChangesAsync();
+            var newSub = await _subscriptionService.GrantSubscriptionAsync(userId, plan);
 
             return new UserAdminSubscriptionStatusDto
             {

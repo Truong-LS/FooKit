@@ -10,11 +10,13 @@ namespace FooKit.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IVnPayService _vnPayService;
+        private readonly ISubscriptionService _subscriptionService;
 
-        public PaymentService(IUnitOfWork unitOfWork, IVnPayService vnPayService)
+        public PaymentService(IUnitOfWork unitOfWork, IVnPayService vnPayService, ISubscriptionService subscriptionService)
         {
             _unitOfWork = unitOfWork;
             _vnPayService = vnPayService;
+            _subscriptionService = subscriptionService;
         }
 
         public async Task<string> CreatePaymentAsync(Guid userId, Guid planId, string ipAddress)
@@ -132,16 +134,7 @@ namespace FooKit.Application.Services
                 var plan = await _unitOfWork.SubscriptionPlans.GetByIdAsync(payment.SubscriptionPlanId);
                 if (plan != null)
                 {
-                    var subscription = new UserSubscription
-                    {
-                        UserId = payment.UserId,
-                        PlanId = payment.SubscriptionPlanId,
-                        StartDate = DateTime.UtcNow,
-                        EndDate = DateTime.UtcNow.AddDays(plan.DurationInDays),
-                        IsActive = true
-                    };
-
-                    await _unitOfWork.UserSubscriptions.AddAsync(subscription);
+                    await _subscriptionService.GrantSubscriptionAsync(payment.UserId, plan);
                 }
             }
             else

@@ -7,6 +7,7 @@ using AutoMapper;
 using FooKit.Application.DTOs.SubscriptionDtos;
 using FooKit.Application.Interfaces.IRepositories;
 using FooKit.Application.Interfaces.IServices;
+using FooKit.Domain.Entities;
 
 namespace FooKit.Application.Services
 {
@@ -59,6 +60,31 @@ namespace FooKit.Application.Services
                 _unitOfWork.UserSubscriptions.Update(activeSubscription);
                 await _unitOfWork.SaveChangesAsync();
             }
+        }
+
+        public async Task<UserSubscription> GrantSubscriptionAsync(Guid userId, SubscriptionPlan plan)
+        {
+            var activeSub = await _unitOfWork.UserSubscriptions.GetActiveSubscriptionAsync(userId);
+            
+            var startDate = DateTime.UtcNow;
+            if (activeSub != null && activeSub.IsActive && activeSub.EndDate > startDate)
+            {
+                startDate = activeSub.EndDate;
+            }
+
+            var newSub = new UserSubscription
+            {
+                UserId = userId,
+                PlanId = plan.Id,
+                StartDate = startDate,
+                EndDate = startDate.AddDays(plan.DurationInDays),
+                IsActive = true
+            };
+
+            await _unitOfWork.UserSubscriptions.AddAsync(newSub);
+            await _unitOfWork.SaveChangesAsync();
+
+            return newSub;
         }
     }
 }

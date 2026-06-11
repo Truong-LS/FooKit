@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FooKit.Application.DTOs.SubscriptionDtos;
+using FooKit.Domain.Entities;
 
 namespace FooKit.Application.Interfaces.IServices
 {
@@ -11,5 +12,6 @@ namespace FooKit.Application.Interfaces.IServices
         Task<UserSubscriptionDto> GetCurrentSubscriptionAsync(Guid userId);
         Task<IEnumerable<PaymentHistoryDto>> GetPaymentHistoryAsync(Guid userId);
         Task CancelSubscriptionAsync(Guid userId);
+        Task<UserSubscription> GrantSubscriptionAsync(Guid userId, FooKit.Domain.Entities.SubscriptionPlan plan);
     }
 }
