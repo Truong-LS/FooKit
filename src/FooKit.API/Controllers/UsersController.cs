@@ -57,5 +57,31 @@ namespace FooKit.API.Controllers
 
             return Ok(ApiResponse<UserProfileResponse>.Ok(updatedProfile, "Profile updated successfully."));
         }
+
+        [HttpGet("me/dietary-profile")]
+        public async Task<IActionResult> GetMyDietaryProfile()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdString, out var userId))
+            {
+                throw new UnauthenticatedException("Unable to determine a valid user identity.");
+            }
+
+            var profile = await _userService.GetDietaryProfileAsync(userId);
+            return Ok(ApiResponse<DietaryProfileResponseDto>.Ok(profile, "Dietary profile retrieved successfully."));
+        }
+
+        [HttpPut("me/dietary-profile")]
+        public async Task<IActionResult> UpdateMyDietaryProfile([FromBody] SaveDietaryProfileRequestDto request)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdString, out var userId))
+            {
+                throw new UnauthenticatedException("Unable to determine a valid user identity.");
+            }
+
+            await _userService.UpdateDietaryProfileAsync(userId, request);
+            return Ok(ApiResponse<object?>.Ok(null, "Dietary profile saved successfully."));
+        }
     }
 }

@@ -28,6 +28,7 @@ namespace FooKit.Infrastructure.Data.DBContext
         public DbSet<UserHistory> UserHistories { get; set; }
         public DbSet<UserAllergy> UserAllergies { get; set; }
         public DbSet<ThirdPartyApiLog> ThirdPartyApiLogs { get; set; }
+        public DbSet<UserFavoriteCuisine> UserFavoriteCuisines { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

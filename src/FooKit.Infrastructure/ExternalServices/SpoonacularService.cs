@@ -35,7 +35,7 @@ namespace FooKit.Infrastructure.ExternalServices
             _context = context;
         }
 
-        public async Task<List<SpoonacularRecipeDto>> SearchRecipesAsync(string equipment, string diet, int limit = 3)
+        public async Task<List<SpoonacularRecipeDto>> SearchRecipesAsync(string equipment, string diet, string mealType, int limit = 3)
         {
             try
             {
@@ -62,6 +62,22 @@ namespace FooKit.Infrastructure.ExternalServices
                     if (!string.IsNullOrEmpty(mappedDiet))
                     {
                         queryParams.Add($"diet={Uri.EscapeDataString(mappedDiet)}");
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(mealType))
+                {
+                    var mappedType = mealType.ToLower() switch
+                    {
+                        "breakfast" => "breakfast",
+                        "lunch" => "main course",
+                        "dinner" => "main course",
+                        _ => string.Empty
+                    };
+                    
+                    if (!string.IsNullOrEmpty(mappedType))
+                    {
+                        queryParams.Add($"type={Uri.EscapeDataString(mappedType)}");
                     }
                 }
 

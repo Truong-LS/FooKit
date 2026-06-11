@@ -8,5 +8,7 @@ namespace FooKit.Application.Interfaces.IServices
     {
         Task<bool> ChangePasswordAsync(Guid userId, ChangePasswordRequest request);
         Task<UserProfileResponse?> UpdateProfileAsync(Guid userId, UpdateProfileRequest request);
+        Task<DietaryProfileResponseDto> GetDietaryProfileAsync(Guid userId);
+        Task UpdateDietaryProfileAsync(Guid userId, SaveDietaryProfileRequestDto request);
     }
 }

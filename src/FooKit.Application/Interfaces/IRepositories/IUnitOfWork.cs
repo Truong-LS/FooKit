@@ -20,6 +20,8 @@ namespace FooKit.Application.Interfaces.IRepositories
         IGenericRepository<UserHomepageCache> UserHomepageCaches { get; }
         IGenericRepository<UserHistory> UserHistories { get; }
         IGenericRepository<UserAllergy> UserAllergies { get; }
+        IGenericRepository<UserDietaryPreference> UserDietaryPreferences { get; }
+        IGenericRepository<UserFavoriteCuisine> UserFavoriteCuisines { get; }
         IGenericRepository<ThirdPartyApiLog> ThirdPartyApiLogs { get; }
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();

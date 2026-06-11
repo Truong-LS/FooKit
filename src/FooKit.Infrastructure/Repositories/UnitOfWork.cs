@@ -32,6 +32,8 @@ namespace FooKit.Infrastructure.Repositories
         public IGenericRepository<UserHomepageCache> UserHomepageCaches { get; private set; }
         public IGenericRepository<UserHistory> UserHistories { get; private set; }
         public IGenericRepository<UserAllergy> UserAllergies { get; private set; }
+        public IGenericRepository<UserDietaryPreference> UserDietaryPreferences { get; private set; }
+        public IGenericRepository<UserFavoriteCuisine> UserFavoriteCuisines { get; private set; }
         public IGenericRepository<ThirdPartyApiLog> ThirdPartyApiLogs { get; private set; }
 
         public UnitOfWork(FooKitDbContext context)
@@ -53,6 +55,8 @@ namespace FooKit.Infrastructure.Repositories
             UserHomepageCaches = new GenericRepository<UserHomepageCache>(_context);
             UserHistories = new GenericRepository<UserHistory>(_context);
             UserAllergies = new GenericRepository<UserAllergy>(_context);
+            UserDietaryPreferences = new GenericRepository<UserDietaryPreference>(_context);
+            UserFavoriteCuisines = new GenericRepository<UserFavoriteCuisine>(_context);
             ThirdPartyApiLogs = new GenericRepository<ThirdPartyApiLog>(_context);
         }
 

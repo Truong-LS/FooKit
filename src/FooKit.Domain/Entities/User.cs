@@ -12,6 +12,7 @@ namespace FooKit.Domain.Entities
         
         public string? FullName { get; set; }
         public string? AvatarUrl { get; set; }
+        public decimal? WeeklyBudget { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public bool IsActive { get; set; } = true;
         public string? BanReason { get; set; }
@@ -27,5 +28,6 @@ namespace FooKit.Domain.Entities
         public virtual ICollection<UserAllergy> Allergies { get; set; } = new List<UserAllergy>();
         public virtual ICollection<UserHistory> UserHistories { get; set; } = new List<UserHistory>();
         public virtual ICollection<UserHomepageCache> HomepageCaches { get; set; } = new List<UserHomepageCache>();
+        public virtual ICollection<UserFavoriteCuisine> FavoriteCuisines { get; set; } = new List<UserFavoriteCuisine>();
     }
 }

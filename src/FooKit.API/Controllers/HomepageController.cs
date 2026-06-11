@@ -29,9 +29,9 @@ namespace FooKit.API.Controllers
             _cacheSignal = cacheSignal;
         }
 
-        [HttpGet("suggestions")]
+        [HttpGet("suggestions/breakfast")]
         [Authorize]
-        public async Task<IActionResult> GetSuggestions()
+        public async Task<IActionResult> GetBreakfastSuggestions()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
@@ -39,8 +39,36 @@ namespace FooKit.API.Controllers
                 throw new UnauthenticatedException("Invalid or missing UserId in token.");
             }
 
-            var suggestions = await _homepageSuggestionService.GetDailySuggestionsAsync(userId);
-            return Ok(ApiResponse<object>.Ok(suggestions, "Homepage suggestions retrieved successfully."));
+            var suggestions = await _homepageSuggestionService.GetMealSuggestionsAsync(userId, "breakfast");
+            return Ok(ApiResponse<object>.Ok(suggestions, "Breakfast suggestions retrieved successfully."));
+        }
+
+        [HttpGet("suggestions/lunch")]
+        [Authorize]
+        public async Task<IActionResult> GetLunchSuggestions()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                throw new UnauthenticatedException("Invalid or missing UserId in token.");
+            }
+
+            var suggestions = await _homepageSuggestionService.GetMealSuggestionsAsync(userId, "lunch");
+            return Ok(ApiResponse<object>.Ok(suggestions, "Lunch suggestions retrieved successfully."));
+        }
+
+        [HttpGet("suggestions/dinner")]
+        [Authorize]
+        public async Task<IActionResult> GetDinnerSuggestions()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                throw new UnauthenticatedException("Invalid or missing UserId in token.");
+            }
+
+            var suggestions = await _homepageSuggestionService.GetMealSuggestionsAsync(userId, "dinner");
+            return Ok(ApiResponse<object>.Ok(suggestions, "Dinner suggestions retrieved successfully."));
         }
 
         [HttpPost("clear-cache")]
@@ -49,7 +77,9 @@ namespace FooKit.API.Controllers
         {
             if (!string.IsNullOrEmpty(request?.TargetUserId))
             {
-                _memoryCache.Remove($"HomepageCache:User_{request.TargetUserId}");
+                _memoryCache.Remove($"HomepageCache:User_{request.TargetUserId}_breakfast");
+                _memoryCache.Remove($"HomepageCache:User_{request.TargetUserId}_lunch");
+                _memoryCache.Remove($"HomepageCache:User_{request.TargetUserId}_dinner");
             }
             else
             {

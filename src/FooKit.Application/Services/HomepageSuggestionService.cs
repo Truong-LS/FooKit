@@ -39,9 +39,9 @@ namespace FooKit.Application.Services
             _cacheSignal = cacheSignal;
         }
 
-        public async Task<HomepageSuggestionResponseDto> GetDailySuggestionsAsync(Guid userId)
+        public async Task<MealSuggestionResponseDto> GetMealSuggestionsAsync(Guid userId, string mealType)
         {
-            var response = new HomepageSuggestionResponseDto();
+            var response = new MealSuggestionResponseDto();
 
             // 1. Premium Validation
             var activeSub = await _unitOfWork.UserSubscriptions.GetActiveSubscriptionAsync(userId);
@@ -52,10 +52,11 @@ namespace FooKit.Application.Services
             }
 
             // 2. Cache Checking (Step 5A)
-            if (_memoryCache.TryGetValue($"HomepageCache:User_{userId}", out string cachedData))
+            var cacheKey = $"HomepageCache:User_{userId}_{mealType}";
+            if (_memoryCache.TryGetValue(cacheKey, out string cachedData))
             {
-                _logger.LogInformation("Cache hit for user {UserId}. Returning serialized menu data.", userId);
-                return JsonSerializer.Deserialize<HomepageSuggestionResponseDto>(cachedData) ?? response;
+                _logger.LogInformation("Cache hit for user {UserId} and meal {MealType}. Returning serialized menu data.", userId, mealType);
+                return JsonSerializer.Deserialize<MealSuggestionResponseDto>(cachedData) ?? response;
             }
 
             // 3. User Profile Fetching
@@ -72,42 +73,36 @@ namespace FooKit.Application.Services
                 foreach (var dish in popularDishes)
                 {
                     var dto = new SuggestedDishDto { DishName = dish.Name, ImageUrl = dish.ImageUrl };
-                    response.Dinner.Add(dto); // Defaulting to dinner for cold start
+                    response.Dishes.Add(dto);
                 }
                 
-                await SaveCacheAsync(userId, response);
+                await SaveCacheAsync(userId, mealType, response);
                 return response;
             }
 
             // 5. External Integration (Step 5B) - Simplified for planning artifact structure
             // In a real implementation, we would call Spoonacular, filter by History/Allergies, and use AI to map ingredients
-            _logger.LogInformation("Cache miss for user {UserId}. Calling external APIs.", userId);
+            _logger.LogInformation("Cache miss for user {UserId} meal {MealType}. Calling external APIs.", userId, mealType);
             
             // Mocking Spoonacular Call
             var equipment = string.Join(",", userTools);
-            var recipes = await _spoonacularService.SearchRecipesAsync(equipment, string.Empty, limit: 9);
+            var recipes = await _spoonacularService.SearchRecipesAsync(equipment, string.Empty, mealType, limit: 3);
             
             if (recipes != null && recipes.Any())
             {
-                var timeOfDay = DateTime.UtcNow.Hour; // Very basic contextual sorting
-
                 foreach (var recipe in recipes)
                 {
                     var dishDto = new SuggestedDishDto { DishName = recipe.Title, ImageUrl = recipe.Image };
-                    
-                    // Contextual Sorting Logic
-                    if (timeOfDay < 11) response.Breakfast.Add(dishDto);
-                    else if (timeOfDay < 16) response.Lunch.Add(dishDto);
-                    else response.Dinner.Add(dishDto);
+                    response.Dishes.Add(dishDto);
                 }
             }
 
             // Save to Cache
-            await SaveCacheAsync(userId, response);
+            await SaveCacheAsync(userId, mealType, response);
             return response;
         }
 
-        private Task SaveCacheAsync(Guid userId, HomepageSuggestionResponseDto response)
+        private Task SaveCacheAsync(Guid userId, string mealType, MealSuggestionResponseDto response)
         {
             var options = new MemoryCacheEntryOptions
             {
@@ -115,7 +110,7 @@ namespace FooKit.Application.Services
             };
             options.AddExpirationToken(_cacheSignal.GetToken());
 
-            _memoryCache.Set($"HomepageCache:User_{userId}", JsonSerializer.Serialize(response), options);
+            _memoryCache.Set($"HomepageCache:User_{userId}_{mealType}", JsonSerializer.Serialize(response), options);
             return Task.CompletedTask;
         }
     }

@@ -6,6 +6,6 @@ namespace FooKit.Application.Interfaces.IServices
 {
     public interface IHomepageSuggestionService
     {
-        Task<HomepageSuggestionResponseDto> GetDailySuggestionsAsync(Guid userId);
+        Task<MealSuggestionResponseDto> GetMealSuggestionsAsync(Guid userId, string mealType);
     }
 }
