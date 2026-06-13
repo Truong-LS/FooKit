@@ -6,6 +6,6 @@ namespace FooKit.Application.Interfaces.IServices
 {
     public interface ISpoonacularService
     {
-        Task<List<SpoonacularRecipeDto>> SearchRecipesAsync(string equipment, string diet, string mealType, int limit = 3);
+        Task<List<SpoonacularRecipeDto>> SearchRecipesAsync(string equipment, string diet, string intolerances, string cuisine, string mealType, int limit = 5);
     }
 }

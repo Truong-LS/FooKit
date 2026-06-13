@@ -35,7 +35,7 @@ namespace FooKit.Infrastructure.ExternalServices
             _context = context;
         }
 
-        public async Task<List<SpoonacularRecipeDto>> SearchRecipesAsync(string equipment, string diet, string mealType, int limit = 3)
+        public async Task<List<SpoonacularRecipeDto>> SearchRecipesAsync(string equipment, string diet, string intolerances, string cuisine, string mealType, int limit = 5)
         {
             try
             {
@@ -63,6 +63,16 @@ namespace FooKit.Infrastructure.ExternalServices
                     {
                         queryParams.Add($"diet={Uri.EscapeDataString(mappedDiet)}");
                     }
+                }
+
+                if (!string.IsNullOrWhiteSpace(intolerances))
+                {
+                    queryParams.Add($"intolerances={Uri.EscapeDataString(intolerances)}");
+                }
+
+                if (!string.IsNullOrWhiteSpace(cuisine))
+                {
+                    queryParams.Add($"cuisine={Uri.EscapeDataString(cuisine)}");
                 }
 
                 if (!string.IsNullOrWhiteSpace(mealType))

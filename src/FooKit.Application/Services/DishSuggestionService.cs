@@ -53,7 +53,7 @@ namespace FooKit.Application.Services
             }
 
             // Step 2: Fetch recipes from Spoonacular
-            var recipes = await _spoonacularService.SearchRecipesAsync(request.Equipment, request.Diet.ToString(), string.Empty, limit: 3);
+            var recipes = await _spoonacularService.SearchRecipesAsync(request.Equipment, request.Diet.ToString(), string.Empty, string.Empty, string.Empty, limit: 5);
             if (recipes == null || !recipes.Any())
             {
                 _logger.LogWarning("No recipes found from Spoonacular API for equipment: {Equipment}, diet: {Diet}", request.Equipment, request.Diet);
