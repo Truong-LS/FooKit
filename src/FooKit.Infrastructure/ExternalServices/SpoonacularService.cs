@@ -35,7 +35,7 @@ namespace FooKit.Infrastructure.ExternalServices
             _context = context;
         }
 
-        public async Task<List<SpoonacularRecipeDto>> SearchRecipesAsync(string equipment, string diet, string intolerances, string cuisine, string mealType, int limit = 5)
+        public async Task<List<SpoonacularRecipeDto>> SearchRecipesAsync(string equipment, string diet, string intolerances, string cuisine, string mealType, int limit = 5, int offset = 0)
         {
             try
             {
@@ -47,6 +47,7 @@ namespace FooKit.Infrastructure.ExternalServices
                 {
                     $"apiKey={apiKey}",
                     $"number={limit}",
+                    $"offset={offset}",
                     "fillIngredients=true",
                     "addRecipeInformation=true"
                 };

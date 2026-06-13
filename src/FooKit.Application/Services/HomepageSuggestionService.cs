@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using FooKit.Application.DTOs.DishDtos;
 using FooKit.Application.DTOs.HomepageDtos;
+using FooKit.Application.Helpers;
 using FooKit.Application.Interfaces.IRepositories;
 using FooKit.Application.Interfaces.IServices;
 using FooKit.Domain.Entities;
@@ -71,6 +72,10 @@ namespace FooKit.Application.Services
                 userTools.Add("Stove/Pan");
                 
                 var allPopular = await _unitOfWork.DishCaches.GetAllAsync();
+                var currentHourCold = DateTime.UtcNow.AddHours(7);
+                var seedCold = currentHourCold.Year * 10000 + currentHourCold.Month * 100 + currentHourCold.Day + currentHourCold.Hour;
+                var offsetCold = new Random(seedCold).Next(0, 30);
+                
                 var skipCount = mealType.ToLower() switch
                 {
                     "breakfast" => 0,
@@ -79,15 +84,34 @@ namespace FooKit.Application.Services
                     _ => 0
                 };
                 
-                var popularDishes = allPopular.Skip(skipCount).Take(5).ToList();
+                var totalOffset = skipCount + offsetCold;
+                var popularDishes = allPopular.Skip(totalOffset % Math.Max(1, allPopular.Count())).Take(5).ToList();
                 if (!popularDishes.Any())
                 {
                     popularDishes = allPopular.Take(5).ToList(); // Fallback if not enough dishes
                 }
                 
+                var allRawIngredients = popularDishes
+                    .SelectMany(d => string.IsNullOrEmpty(d.RawIngredientsJson) ? new List<string>() : JsonSerializer.Deserialize<List<string>>(d.RawIngredientsJson))
+                    .Distinct()
+                    .ToList();
+                
+                var mappedIngredientsLookup = await DishPricingHelper.GetOrMatchIngredientsAsync(_unitOfWork, _aiMatchingService, _logger, allRawIngredients);
+                var allStandardIngredients = (await _unitOfWork.StandardIngredients.GetAllAsync()).ToDictionary(si => si.Id, si => si);
+                var activeAffiliates = (await _unitOfWork.AffiliateProducts.FindAsync(ap => ap.IsActive)).ToList();
+
                 foreach (var dish in popularDishes)
                 {
-                    var dto = new SuggestedDishDto { DishName = dish.Name, ImageUrl = dish.ImageUrl };
+                    var rawIngredients = string.IsNullOrEmpty(dish.RawIngredientsJson) ? new List<string>() : JsonSerializer.Deserialize<List<string>>(dish.RawIngredientsJson);
+                    
+                    var dummyRecipe = new FooKit.Application.DTOs.SpoonacularDtos.SpoonacularRecipeDto
+                    {
+                        Title = dish.Name,
+                        Image = dish.ImageUrl,
+                        RawIngredients = rawIngredients
+                    };
+                    
+                    var dto = await DishPricingHelper.CalculateDishPriceAsync(dummyRecipe, mappedIngredientsLookup, allStandardIngredients, activeAffiliates);
                     response.Dishes.Add(dto);
                 }
                 
@@ -103,13 +127,22 @@ namespace FooKit.Application.Services
             var intolerances = string.Join(",", allergies);
             var cuisineParam = string.Join(",", cuisines);
             
-            var recipes = await _spoonacularService.SearchRecipesAsync(equipment, string.Empty, intolerances, cuisineParam, mealType, limit: 5);
+            var currentHour = DateTime.UtcNow.AddHours(7);
+            var seed = currentHour.Year * 10000 + currentHour.Month * 100 + currentHour.Day + currentHour.Hour;
+            var offset = new Random(seed).Next(0, 30);
+            
+            var recipes = await _spoonacularService.SearchRecipesAsync(equipment, string.Empty, intolerances, cuisineParam, mealType, limit: 5, offset: offset);
             
             if (recipes != null && recipes.Any())
             {
+                var allRawIngredients = recipes.SelectMany(r => r.RawIngredients).Distinct().ToList();
+                var mappedIngredientsLookup = await DishPricingHelper.GetOrMatchIngredientsAsync(_unitOfWork, _aiMatchingService, _logger, allRawIngredients);
+                var allStandardIngredients = (await _unitOfWork.StandardIngredients.GetAllAsync()).ToDictionary(si => si.Id, si => si);
+                var activeAffiliates = (await _unitOfWork.AffiliateProducts.FindAsync(ap => ap.IsActive)).ToList();
+
                 foreach (var recipe in recipes)
                 {
-                    var dishDto = new SuggestedDishDto { DishName = recipe.Title, ImageUrl = recipe.Image };
+                    var dishDto = await DishPricingHelper.CalculateDishPriceAsync(recipe, mappedIngredientsLookup, allStandardIngredients, activeAffiliates);
                     response.Dishes.Add(dishDto);
                 }
             }

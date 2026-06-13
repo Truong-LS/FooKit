@@ -12,6 +12,8 @@ using FooKit.Domain.Entities;
 using FooKit.Domain.Enums;
 using FooKit.Domain.ValueObjects;
 
+using FooKit.Application.Helpers;
+
 namespace FooKit.Application.Services
 {
     public class DishSuggestionService : IDishSuggestionService
@@ -52,11 +54,41 @@ namespace FooKit.Application.Services
                 }
             }
 
+            // Step 1.5: Fetch User Profile for Fallbacks and Additional Dietary Info
+            var user = await _unitOfWork.Users.GetByIdAsync(userId);
+            var userTools = user?.Tools?.Select(t => t.ToolName).ToList() ?? new List<string>();
+            var allergies = (await _unitOfWork.UserAllergies.FindAsync(a => a.UserId == userId)).Select(a => a.AllergenName).ToList();
+            var cuisines = (await _unitOfWork.UserFavoriteCuisines.FindAsync(c => c.UserId == userId)).Select(c => c.CuisineName).ToList();
+
+            var finalEquipment = !string.IsNullOrWhiteSpace(request.Equipment) 
+                ? request.Equipment 
+                : (userTools.Any() ? string.Join(",", userTools) : "Stove/Pan");
+
+            var finalIntolerances = string.Join(",", allergies);
+            var finalCuisines = string.Join(",", cuisines);
+
+            // Step 1.8: Determine Meal Type based on current time (UTC+7)
+            var currentHour = DateTime.UtcNow.AddHours(7);
+            string currentMealType = "dinner";
+            if (currentHour.Hour >= 5 && currentHour.Hour < 10) currentMealType = "breakfast";
+            else if (currentHour.Hour >= 10 && currentHour.Hour < 14) currentMealType = "lunch";
+
+            var seed = currentHour.Year * 10000 + currentHour.Month * 100 + currentHour.Day + currentHour.Hour;
+            var offset = new Random(seed).Next(0, 30);
+
             // Step 2: Fetch recipes from Spoonacular
-            var recipes = await _spoonacularService.SearchRecipesAsync(request.Equipment, request.Diet.ToString(), string.Empty, string.Empty, string.Empty, limit: 5);
+            var recipes = await _spoonacularService.SearchRecipesAsync(
+                equipment: finalEquipment, 
+                diet: request.Diet.ToString(), 
+                intolerances: finalIntolerances, 
+                cuisine: finalCuisines, 
+                mealType: currentMealType, 
+                limit: 5,
+                offset: offset);
+                
             if (recipes == null || !recipes.Any())
             {
-                _logger.LogWarning("No recipes found from Spoonacular API for equipment: {Equipment}, diet: {Diet}", request.Equipment, request.Diet);
+                _logger.LogWarning("No recipes found from Spoonacular API for equipment: {Equipment}, diet: {Diet}", finalEquipment, request.Diet);
                 return new DishSuggestionResponseDto();
             }
 
@@ -64,7 +96,7 @@ namespace FooKit.Application.Services
             var allRawIngredients = recipes.SelectMany(r => r.RawIngredients).Distinct().ToList();
 
             // Step 3: AI entity matching and dictionary caching
-            var mappedIngredientsLookup = await GetOrMatchIngredientsAsync(allRawIngredients);
+            var mappedIngredientsLookup = await DishPricingHelper.GetOrMatchIngredientsAsync(_unitOfWork, _aiMatchingService, _logger, allRawIngredients);
 
             // Fetch standard ingredients for naming reference
             var allStandardIngredients = (await _unitOfWork.StandardIngredients.GetAllAsync()).ToDictionary(si => si.Id, si => si);
@@ -94,51 +126,9 @@ namespace FooKit.Application.Services
 
                 foreach (var recipe in recipes)
                 {
-                    var suggestedIngredients = new List<SuggestedDishIngredientDto>();
-                    decimal recipeTotalCost = 0;
-
-                    foreach (var rawIng in recipe.RawIngredients)
-                    {
-                        var ingredientDto = new SuggestedDishIngredientDto
-                        {
-                            RawEnglishName = rawIng,
-                            IsMapped = false,
-                            StandardIngredientName = "Khác",
-                            AffiliateProduct = null
-                        };
-
-                        if (mappedIngredientsLookup.TryGetValue(rawIng, out var standardId) && standardId.HasValue)
-                        {
-                            var stdId = standardId.Value;
-                            ingredientDto.IsMapped = true;
-
-                            if (allStandardIngredients.TryGetValue(stdId, out var standardIng))
-                            {
-                                ingredientDto.StandardIngredientName = standardIng.Name;
-                            }
-
-                            // Find cheapest active affiliate product for this standard ingredient
-                            var cheapestAffiliate = activeAffiliates
-                                .Where(ap => ap.StandardIngredientId == stdId)
-                                .OrderBy(ap => ap.CurrentPrice.Amount)
-                                .FirstOrDefault();
-
-                            if (cheapestAffiliate != null)
-                            {
-                                ingredientDto.AffiliateProduct = new SuggestedAffiliateProductDto
-                                {
-                                    ProductId = cheapestAffiliate.Id,
-                                    ProductName = cheapestAffiliate.ProductName,
-                                    ProductUrl = cheapestAffiliate.ProductUrl,
-                                    Price = cheapestAffiliate.CurrentPrice.Amount,
-                                    Platform = cheapestAffiliate.Platform
-                                };
-                                recipeTotalCost += cheapestAffiliate.CurrentPrice.Amount;
-                            }
-                        }
-
-                        suggestedIngredients.Add(ingredientDto);
-                    }
+                    var dishDto = await DishPricingHelper.CalculateDishPriceAsync(recipe, mappedIngredientsLookup, allStandardIngredients, activeAffiliates);
+                    var recipeTotalCost = dishDto.TotalCost;
+                    var suggestedIngredients = dishDto.Ingredients;
 
                     // Check Budget limit: If exceeds budget, exclude dish
                     if (recipeTotalCost > request.Budget)
@@ -179,14 +169,7 @@ namespace FooKit.Application.Services
                     };
                     await _unitOfWork.SuggestionResults.AddAsync(suggestionResult);
 
-                    suggestedDishes.Add(new SuggestedDishDto
-                    {
-                        DishName = recipe.Title,
-                        ImageUrl = recipe.Image,
-                        Instructions = recipe.Instructions,
-                        TotalCost = recipeTotalCost,
-                        Ingredients = suggestedIngredients
-                    });
+                    suggestedDishes.Add(dishDto);
                 }
 
                 });
@@ -201,100 +184,6 @@ namespace FooKit.Application.Services
             {
                 SuggestedDishes = suggestedDishes
             };
-        }
-
-        private async Task<Dictionary<string, Guid?>> GetOrMatchIngredientsAsync(List<string> rawIngredients)
-        {
-            var lookup = new Dictionary<string, Guid?>(StringComparer.OrdinalIgnoreCase);
-
-            // Fetch already cached dictionaries from DB
-            var existingDictionaries = (await _unitOfWork.IngredientDictionaries.GetAllAsync())
-                .ToDictionary(id => id.RawKeywordFromApi, id => id.StandardIngredientId, StringComparer.OrdinalIgnoreCase);
-
-            var uncachedRawIngredients = new List<string>();
-            var logs = new List<ThirdPartyApiLog>();
-
-            foreach (var rawIng in rawIngredients)
-            {
-                if (existingDictionaries.TryGetValue(rawIng, out var standardId))
-                {
-                    lookup[rawIng] = standardId;
-                    logs.Add(new ThirdPartyApiLog
-                    {
-                        Id = Guid.NewGuid(),
-                        ServiceName = "GoogleGemini",
-                        Endpoint = "TranslateIngredient",
-                        TokensUsed = 0,
-                        WasCacheHit = true,
-                        CreatedAt = DateTime.UtcNow
-                    });
-                }
-                else
-                {
-                    uncachedRawIngredients.Add(rawIng);
-                    logs.Add(new ThirdPartyApiLog
-                    {
-                        Id = Guid.NewGuid(),
-                        ServiceName = "GoogleGemini",
-                        Endpoint = "TranslateIngredient",
-                        TokensUsed = 0,
-                        WasCacheHit = false,
-                        CreatedAt = DateTime.UtcNow
-                    });
-                }
-            }
-
-            if (logs.Any())
-            {
-                await _unitOfWork.ThirdPartyApiLogs.AddRangeAsync(logs);
-            }
-
-            if (uncachedRawIngredients.Any())
-            {
-                _logger.LogInformation("Found {Count} uncached ingredients. Fetching standard ingredients to prompt AI...", uncachedRawIngredients.Count);
-
-                // Fetch standard ingredients
-                var standardIngredients = await _unitOfWork.StandardIngredients.GetAllAsync();
-                var standardDtos = standardIngredients.Select(si => new StandardIngredientDto
-                {
-                    Id = si.Id,
-                    Name = si.Name,
-                    Category = si.Category.ToString()
-                }).ToList();
-
-                // Call AI matching
-                var aiMatches = await _aiMatchingService.MatchIngredientsAsync(uncachedRawIngredients, standardDtos);
-
-                // Save new matches to DB cache
-                foreach (var match in aiMatches)
-                {
-                    lookup[match.Key] = match.Value;
-
-                    if (match.Value.HasValue)
-                    {
-                        var newDict = new IngredientDictionary
-                        {
-                            Id = Guid.NewGuid(),
-                            RawKeywordFromApi = match.Key,
-                            StandardIngredientId = match.Value.Value
-                        };
-                        await _unitOfWork.IngredientDictionaries.AddAsync(newDict);
-                    }
-                }
-
-                if (aiMatches.Any(m => m.Value.HasValue))
-                {
-                    _logger.LogInformation("Successfully added new mapped ingredient dictionaries to DB cache.");
-                }
-            }
-
-            if (logs.Any())
-            {
-                await _unitOfWork.SaveChangesAsync();
-                _logger.LogInformation("Successfully saved translation logs and updated caches to DB.");
-            }
-
-            return lookup;
         }
     }
 }
