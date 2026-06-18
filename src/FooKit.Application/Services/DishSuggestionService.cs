@@ -148,6 +148,7 @@ namespace FooKit.Application.Services
                         {
                             Id = Guid.NewGuid(),
                             ExternalApiId = externalId,
+                            SpoonacularId = recipe.SpoonacularId,
                             Name = recipe.Title,
                             ImageUrl = recipe.Image,
                             DietaryTagsJson = JsonSerializer.Serialize(recipe.Diets),
@@ -169,6 +170,7 @@ namespace FooKit.Application.Services
                     };
                     await _unitOfWork.SuggestionResults.AddAsync(suggestionResult);
 
+                    dishDto.DishCacheId = dishCache.Id;
                     suggestedDishes.Add(dishDto);
                 }
 

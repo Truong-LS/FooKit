@@ -155,6 +155,7 @@ namespace FooKit.Infrastructure.ExternalServices
 
                     results.Add(new SpoonacularRecipeDto
                     {
+                        SpoonacularId = recipe.Id,
                         Title = recipe.Title ?? string.Empty,
                         Image = recipe.Image ?? string.Empty,
                         Instructions = string.Join("\n", stepsList),
@@ -246,5 +247,53 @@ namespace FooKit.Infrastructure.ExternalServices
             public string StepText { get; set; } = string.Empty;
         }
         #endregion
+
+        public async Task<List<string>> GetRecipeInstructionsAsync(int recipeId)
+        {
+            try
+            {
+                var apiKey = _options.ApiKey;
+                var baseUrl = _options.BaseUrl.TrimEnd('/');
+                var requestUrl = $"{baseUrl}/recipes/{recipeId}/analyzedInstructions?apiKey={apiKey}";
+                
+                _logger.LogInformation("Calling Spoonacular API for instructions. URL: {Url}", requestUrl.Replace(apiKey, "HIDDEN_KEY"));
+
+                var response = await _httpClient.GetAsync(requestUrl);
+                response.EnsureSuccessStatusCode();
+
+                var apiLog = new ThirdPartyApiLog
+                {
+                    Id = Guid.NewGuid(),
+                    ServiceName = "Spoonacular",
+                    Endpoint = "recipes/{id}/analyzedInstructions",
+                    TokensUsed = 0,
+                    WasCacheHit = false,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.ThirdPartyApiLogs.Add(apiLog);
+                await _context.SaveChangesAsync();
+
+                var apiResponse = await response.Content.ReadFromJsonAsync<List<SpoonacularInstruction>>();
+                var steps = new List<string>();
+                
+                if (apiResponse != null)
+                {
+                    foreach (var instruction in apiResponse)
+                    {
+                        if (instruction.Steps != null)
+                        {
+                            steps.AddRange(instruction.Steps.Select(s => s.StepText));
+                        }
+                    }
+                }
+
+                return steps;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while calling Spoonacular API for instructions: {Message}", ex.Message);
+                return new List<string>();
+            }
+        }
     }
 }

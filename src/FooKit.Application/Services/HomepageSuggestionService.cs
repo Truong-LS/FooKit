@@ -106,12 +106,14 @@ namespace FooKit.Application.Services
                     
                     var dummyRecipe = new FooKit.Application.DTOs.SpoonacularDtos.SpoonacularRecipeDto
                     {
+                        SpoonacularId = dish.SpoonacularId,
                         Title = dish.Name,
                         Image = dish.ImageUrl,
                         RawIngredients = rawIngredients
                     };
                     
                     var dto = await DishPricingHelper.CalculateDishPriceAsync(dummyRecipe, mappedIngredientsLookup, allStandardIngredients, activeAffiliates);
+                    dto.DishCacheId = dish.Id;
                     response.Dishes.Add(dto);
                 }
                 
@@ -143,8 +145,31 @@ namespace FooKit.Application.Services
                 foreach (var recipe in recipes)
                 {
                     var dishDto = await DishPricingHelper.CalculateDishPriceAsync(recipe, mappedIngredientsLookup, allStandardIngredients, activeAffiliates);
+                    
+                    var externalId = recipe.Title.GetHashCode().ToString();
+                    var dishCache = (await _unitOfWork.DishCaches.FindAsync(dc => dc.ExternalApiId == externalId)).FirstOrDefault();
+                    if (dishCache == null)
+                    {
+                        dishCache = new DishCache
+                        {
+                            Id = Guid.NewGuid(),
+                            ExternalApiId = externalId,
+                            SpoonacularId = recipe.SpoonacularId,
+                            Name = recipe.Title,
+                            ImageUrl = recipe.Image,
+                            DietaryTagsJson = JsonSerializer.Serialize(recipe.Diets),
+                            RequiredToolsJson = JsonSerializer.Serialize(new List<string> { equipment }),
+                            RawIngredientsJson = JsonSerializer.Serialize(recipe.RawIngredients),
+                            LastFetchedAt = DateTime.UtcNow
+                        };
+                        await _unitOfWork.DishCaches.AddAsync(dishCache);
+                    }
+                    dishDto.DishCacheId = dishCache.Id;
+
                     response.Dishes.Add(dishDto);
                 }
+                
+                await _unitOfWork.SaveChangesAsync();
             }
 
             // Save to Cache

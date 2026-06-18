@@ -246,6 +246,131 @@ namespace FooKit.Infrastructure.ExternalServices
             public string Raw { get; set; } = string.Empty;
             public string StandardIngredientId { get; set; } = string.Empty;
         }
+
+        private class GeminiRecipeResult
+        {
+            [JsonPropertyName("steps")]
+            public List<string>? Steps { get; set; }
+        }
         #endregion
+
+        public async Task<List<string>> GenerateRecipeAsync(string dishName, List<string> ingredients)
+        {
+            try
+            {
+                var apiKey = _options.ApiKey;
+                var baseUrl = _options.BaseUrl.TrimEnd('/');
+                var model = _options.Model;
+
+                _logger.LogInformation("GenerateRecipeAsync called. DishName: '{DishName}', Ingredients count: {Count}, Model: {Model}", 
+                    dishName, ingredients?.Count ?? 0, model);
+
+                if (string.IsNullOrWhiteSpace(apiKey))
+                {
+                    _logger.LogError("Gemini API key is not configured. Cannot generate recipe.");
+                    return new List<string>();
+                }
+
+                var requestUrl = $"{baseUrl}/v1beta/models/{model}:generateContent?key={apiKey}";
+
+                var ingredientList = ingredients != null && ingredients.Any() 
+                    ? string.Join(", ", ingredients) 
+                    : "các nguyên liệu cơ bản phù hợp với món ăn";
+
+                var promptBuilder = new StringBuilder();
+                promptBuilder.AppendLine("Bạn là một đầu bếp chuyên nghiệp với nhiều năm kinh nghiệm.");
+                promptBuilder.AppendLine($"Hãy viết hướng dẫn nấu món \"{dishName}\" với các nguyên liệu sau: {ingredientList}.");
+                promptBuilder.AppendLine();
+                promptBuilder.AppendLine("Yêu cầu:");
+                promptBuilder.AppendLine("- Viết bằng Tiếng Việt");
+                promptBuilder.AppendLine("- Chia thành từng bước rõ ràng, ngắn gọn, dễ hiểu");
+                promptBuilder.AppendLine("- Mỗi bước bắt đầu bằng \"Bước X:\" và là một câu hoàn chỉnh");
+                promptBuilder.AppendLine("- Bao gồm thời gian nấu ước tính nếu cần");
+                promptBuilder.AppendLine("- Từ 4 đến 8 bước");
+                promptBuilder.AppendLine();
+                promptBuilder.AppendLine("Output CHỈ là một JSON object theo schema sau:");
+                promptBuilder.AppendLine("{");
+                promptBuilder.AppendLine("  \"steps\": [");
+                promptBuilder.AppendLine("    \"Bước 1: ...\",");
+                promptBuilder.AppendLine("    \"Bước 2: ...\"");
+                promptBuilder.AppendLine("  ]");
+                promptBuilder.AppendLine("}");
+
+                var requestPayload = new GeminiRequest
+                {
+                    Contents = new List<GeminiContent>
+                    {
+                        new GeminiContent
+                        {
+                            Parts = new List<GeminiPart>
+                            {
+                                new GeminiPart { Text = promptBuilder.ToString() }
+                            }
+                        }
+                    },
+                    GenerationConfig = new GeminiConfig
+                    {
+                        ResponseMimeType = "application/json"
+                    }
+                };
+
+                var serializeOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+                var jsonContent = new StringContent(
+                    JsonSerializer.Serialize(requestPayload, serializeOptions),
+                    Encoding.UTF8,
+                    "application/json");
+
+                _logger.LogInformation("Sending request to Gemini API for recipe: {DishName}. URL: {Url}", dishName, requestUrl.Replace(apiKey, "HIDDEN_KEY"));
+
+                var response = await _httpClient.PostAsync(requestUrl, jsonContent);
+                
+                _logger.LogInformation("Gemini API response status: {StatusCode}", response.StatusCode);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    _logger.LogError("Gemini API returned error {StatusCode}: {Body}", response.StatusCode, errorBody);
+                    return new List<string>();
+                }
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+                _logger.LogInformation("Gemini API raw response length: {Length} chars", responseContent?.Length ?? 0);
+
+                var apiResponse = JsonSerializer.Deserialize<GeminiResponse>(responseContent);
+                var aiText = apiResponse?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
+
+                _logger.LogInformation("Gemini AI text extracted: {AiText}", aiText ?? "NULL");
+
+                var tokensUsed = apiResponse?.UsageMetadata?.TotalTokenCount ?? 0;
+                var apiLog = new ThirdPartyApiLog
+                {
+                    Id = Guid.NewGuid(),
+                    ServiceName = "GoogleGemini",
+                    Endpoint = "generateContent/recipe",
+                    TokensUsed = tokensUsed,
+                    WasCacheHit = false,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _context.ThirdPartyApiLogs.Add(apiLog);
+                await _context.SaveChangesAsync();
+
+                if (string.IsNullOrWhiteSpace(aiText))
+                {
+                    _logger.LogWarning("Gemini API returned an empty AI text for recipe generation of '{DishName}'.", dishName);
+                    return new List<string>();
+                }
+
+                var recipeResult = JsonSerializer.Deserialize<GeminiRecipeResult>(aiText, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                var steps = recipeResult?.Steps ?? new List<string>();
+                
+                _logger.LogInformation("GenerateRecipeAsync completed for '{DishName}'. Steps count: {Count}", dishName, steps.Count);
+                return steps;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred in GenerateRecipeAsync for dish '{DishName}': {Message}", dishName, ex.Message);
+                return new List<string>();
+            }
+        }
     }
 }

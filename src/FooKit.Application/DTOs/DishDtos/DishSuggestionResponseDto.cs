@@ -10,6 +10,7 @@ namespace FooKit.Application.DTOs.DishDtos
 
     public class SuggestedDishDto
     {
+        public Guid? DishCacheId { get; set; }
         public string DishName { get; set; } = string.Empty;
         public string ImageUrl { get; set; } = string.Empty;
         public string Instructions { get; set; } = string.Empty;

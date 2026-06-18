@@ -4,6 +4,7 @@ namespace FooKit.Application.DTOs.SpoonacularDtos
 {
     public class SpoonacularRecipeDto
     {
+        public int SpoonacularId { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Image { get; set; } = string.Empty;
         public string Instructions { get; set; } = string.Empty;

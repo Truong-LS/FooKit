@@ -18,6 +18,7 @@ public static class DependencyInjection
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<ISubscriptionService, SubscriptionService>();
         services.AddScoped<IDishSuggestionService, DishSuggestionService>();
+        services.AddScoped<IDishRecipeService, DishRecipeService>();
         services.AddScoped<IHomepageSuggestionService, HomepageSuggestionService>();
         services.AddScoped<IAdminDashboardService, AdminDashboardService>();
         services.AddScoped<IIngredientService, IngredientService>();

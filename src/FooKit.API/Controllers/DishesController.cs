@@ -15,10 +15,12 @@ namespace FooKit.API.Controllers
     public class DishesController : ControllerBase
     {
         private readonly IDishSuggestionService _dishSuggestionService;
+        private readonly IDishRecipeService _dishRecipeService;
 
-        public DishesController(IDishSuggestionService dishSuggestionService)
+        public DishesController(IDishSuggestionService dishSuggestionService, IDishRecipeService dishRecipeService)
         {
             _dishSuggestionService = dishSuggestionService;
+            _dishRecipeService = dishRecipeService;
         }
 
         [Authorize]
@@ -33,6 +35,14 @@ namespace FooKit.API.Controllers
 
             var response = await _dishSuggestionService.GetSuggestionsAsync(userId, request);
             return Ok(ApiResponse<DishSuggestionResponseDto>.Ok(response, "Budget-optimized dish suggestions retrieved successfully."));
+        }
+
+        [Authorize]
+        [HttpGet("{dishCacheId:guid}/recipe")]
+        public async Task<IActionResult> GetDishRecipe(Guid dishCacheId)
+        {
+            var recipe = await _dishRecipeService.GetRecipeDetailAsync(dishCacheId);
+            return Ok(ApiResponse<DishRecipeDetailDto>.Ok(recipe, "Lấy chi tiết công thức nấu ăn thành công."));
         }
     }
 }

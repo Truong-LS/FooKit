@@ -45,7 +45,7 @@ public static class DependencyInjection
         {
             options.ApiKey = config["GEMINI_API_KEY"] ?? string.Empty;
             options.BaseUrl = config["GEMINI_BASE_URL"] ?? "https://generativelanguage.googleapis.com";
-            options.Model = config["GEMINI_MODEL"] ?? "gemini-1.5-flash";
+            options.Model = config["GEMINI_MODEL"] ?? "gemini-2.5-flash-lite";
         });
 
         services.Configure<CloudinarySettings>(options =>
