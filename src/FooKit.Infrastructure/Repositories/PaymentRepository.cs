@@ -11,10 +11,10 @@ namespace FooKit.Infrastructure.Repositories
         {
         }
 
-        public async Task<Payment?> GetByTransactionRefAsync(string transactionRef)
+        public async Task<Payment?> GetByOrderCodeAsync(long orderCode)
         {
             return await _context.Payments
-                .FirstOrDefaultAsync(p => p.TransactionRef == transactionRef);
+                .FirstOrDefaultAsync(p => p.OrderCode == orderCode);
         }
 
         public async Task<IEnumerable<Payment>> GetByUserIdAsync(Guid userId)

@@ -158,12 +158,12 @@ CREATE TABLE [dbo].[Payments](
 	[Id] [uniqueidentifier] NOT NULL,
 	[UserId] [uniqueidentifier] NOT NULL,
 	[SubscriptionPlanId] [uniqueidentifier] NOT NULL,
-	[TransactionRef] [nvarchar](50) NOT NULL,
+	[OrderCode] [bigint] NOT NULL,
 	[Amount] [decimal](18, 0) NOT NULL,
 	[OrderInfo] [nvarchar](255) NOT NULL,
 	[Status] [int] NOT NULL,
-	[VnPayTransactionNo] [nvarchar](50) NULL,
-	[VnPayResponseCode] [nvarchar](10) NULL,
+	[PaymentLinkId] [nvarchar](100) NULL,
+	[PayOsTransactionRef] [nvarchar](100) NULL,
 	[BankCode] [nvarchar](20) NULL,
 	[CreatedAt] [datetime2](7) NOT NULL,
 	[PaidAt] [datetime2](7) NULL,
@@ -601,10 +601,10 @@ CREATE NONCLUSTERED INDEX [IX_Payments_SubscriptionPlanId] ON [dbo].[Payments]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_Payments_TransactionRef]    Script Date: 27/05/2026 10:30:01 SA ******/
-CREATE UNIQUE NONCLUSTERED INDEX [IX_Payments_TransactionRef] ON [dbo].[Payments]
+/****** Object:  Index [IX_Payments_OrderCode]    Script Date: 27/05/2026 10:30:01 SA ******/
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Payments_OrderCode] ON [dbo].[Payments]
 (
-	[TransactionRef] ASC
+	[OrderCode] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 /****** Object:  Index [IX_Payments_UserId]    Script Date: 27/05/2026 10:30:01 SA ******/

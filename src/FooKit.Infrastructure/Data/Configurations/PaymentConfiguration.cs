@@ -13,11 +13,10 @@ namespace FooKit.Infrastructure.Data.Configurations
 
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.TransactionRef)
-                   .IsRequired()
-                   .HasMaxLength(50);
+            builder.Property(x => x.OrderCode)
+                   .IsRequired();
 
-            builder.HasIndex(x => x.TransactionRef)
+            builder.HasIndex(x => x.OrderCode)
                    .IsUnique();
 
             builder.Property(x => x.Amount)
@@ -32,11 +31,11 @@ namespace FooKit.Infrastructure.Data.Configurations
                    .IsRequired()
                    .HasDefaultValue(PaymentStatus.Pending);
 
-            builder.Property(x => x.VnPayTransactionNo)
-                   .HasMaxLength(50);
+            builder.Property(x => x.PaymentLinkId)
+                   .HasMaxLength(100);
 
-            builder.Property(x => x.VnPayResponseCode)
-                   .HasMaxLength(10);
+            builder.Property(x => x.PayOsTransactionRef)
+                   .HasMaxLength(100);
 
             builder.Property(x => x.BankCode)
                    .HasMaxLength(20);

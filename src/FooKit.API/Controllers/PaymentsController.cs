@@ -5,6 +5,7 @@ using FooKit.Application.DTOs.Common;
 using FooKit.Application.DTOs.PaymentDtos;
 using FooKit.Application.Interfaces.IServices;
 using FooKit.Domain.Exceptions;
+using PayOS.Models.Webhooks;
 using System.Security.Claims;
 
 namespace FooKit.API.Controllers
@@ -21,10 +22,6 @@ namespace FooKit.API.Controllers
             _paymentService = paymentService;
         }
 
-        /// <summary>
-        /// Creates a payment request and returns the VNPay payment URL.
-        /// The client should redirect the user to this URL.
-        /// </summary>
         [Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest request)
@@ -33,43 +30,31 @@ namespace FooKit.API.Controllers
 
             if (!Guid.TryParse(userIdString, out var userId))
             {
-                throw new UnauthenticatedException("Unable to determine a valid user identity.");
+                throw new UnauthenticatedException("Không thể xác định danh tính người dùng hợp lệ.");
             }
 
-            var ipAddress = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString() ?? "127.0.0.1";
+            var checkoutUrl = await _paymentService.CreatePaymentAsync(userId, request.PlanId);
 
-            var paymentUrl = await _paymentService.CreatePaymentAsync(userId, request.PlanId, ipAddress);
-
-            return Ok(ApiResponse<object>.Ok(new { PaymentUrl = paymentUrl }, "Payment URL generated successfully."));
+            return Ok(ApiResponse<object>.Ok(new { CheckoutUrl = checkoutUrl }, "Tạo link thanh toán thành công."));
         }
 
-        /// <summary>
-        /// VNPay redirects the user to this endpoint after payment.
-        /// Validates the payment result and returns the outcome.
-        /// </summary>
-        [HttpGet("vnpay-return")]
-        public async Task<IActionResult> VnPayReturn()
+        [HttpGet("payos-return")]
+        public async Task<IActionResult> PayOsReturn([FromQuery] long orderCode)
         {
-            var queryParams = Request.Query.ToDictionary(x => x.Key, x => x.Value.ToString());
-            var result = await _paymentService.ProcessReturnAsync(queryParams);
+            var result = await _paymentService.ProcessReturnAsync(orderCode);
 
             if (!result.Success)
             {
                 throw new BadRequestException(result.Message);
             }
 
-            return Ok(ApiResponse<PaymentResultDto>.Ok(result, "Payment completed successfully."));
+            return Ok(ApiResponse<PaymentResultDto>.Ok(result, "Thanh toán hoàn tất thành công."));
         }
 
-        /// <summary>
-        /// VNPay server-to-server IPN callback.
-        /// This endpoint must be publicly accessible (no authentication).
-        /// </summary>
-        [HttpGet("vnpay-ipn")]
-        public async Task<IActionResult> VnPayIpn()
+        [HttpPost("payos-webhook")]
+        public async Task<IActionResult> PayOsWebhook([FromBody] Webhook webhookBody)
         {
-            var queryParams = Request.Query.ToDictionary(x => x.Key, x => x.Value.ToString());
-            var response = await _paymentService.ProcessIpnAsync(queryParams);
+            var response = await _paymentService.ProcessWebhookAsync(webhookBody);
             return Ok(response);
         }
     }

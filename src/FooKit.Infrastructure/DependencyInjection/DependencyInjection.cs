@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PayOS;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using FooKit.Application.Interfaces.IRepositories;
@@ -29,7 +30,16 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IGoogleAuthProvider, GoogleAuthProvider>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
-        services.AddScoped<IVnPayService, VnPayService>();
+
+        services.AddSingleton(sp =>
+        {
+            var configuration = sp.GetRequiredService<IConfiguration>();
+            return new PayOSClient(
+                configuration["PAYOS_CLIENT_ID"] ?? Environment.GetEnvironmentVariable("PAYOS_CLIENT_ID") ?? string.Empty,
+                configuration["PAYOS_API_KEY"] ?? Environment.GetEnvironmentVariable("PAYOS_API_KEY") ?? string.Empty,
+                configuration["PAYOS_CHECKSUM_KEY"] ?? Environment.GetEnvironmentVariable("PAYOS_CHECKSUM_KEY") ?? string.Empty
+            );
+        });
 
         services.AddSingleton<WorkerHealthTracker>();
         services.AddScoped<IImageService, ImageService>();

@@ -10,9 +10,9 @@ namespace FooKit.Domain.Entities
         public Guid SubscriptionPlanId { get; set; }
 
         /// <summary>
-        /// Unique transaction reference sent to VNPay (vnp_TxnRef).
+        /// Mã đơn hàng số duy nhất gửi tới PayOS (phải là số nguyên dương int64).
         /// </summary>
-        public string TransactionRef { get; set; } = string.Empty;
+        public long OrderCode { get; set; }
 
         /// <summary>
         /// Payment amount in VND.
@@ -27,14 +27,14 @@ namespace FooKit.Domain.Entities
         public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
 
         /// <summary>
-        /// VNPay transaction number returned after payment.
+        /// ID liên kết thanh toán PayOS trả về sau khi tạo link thanh toán.
         /// </summary>
-        public string? VnPayTransactionNo { get; set; }
+        public string? PaymentLinkId { get; set; }
 
         /// <summary>
-        /// VNPay response code. "00" indicates success.
+        /// Mã tham chiếu giao dịch PayOS từ webhook callback.
         /// </summary>
-        public string? VnPayResponseCode { get; set; }
+        public string? PayOsTransactionRef { get; set; }
 
         /// <summary>
         /// Bank code used for payment (e.g., NCB, VISA).

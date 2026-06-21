@@ -3,149 +3,197 @@ using FooKit.Application.Interfaces.IRepositories;
 using FooKit.Application.Interfaces.IServices;
 using FooKit.Domain.Entities;
 using FooKit.Domain.Enums;
+using Microsoft.Extensions.Configuration;
+using PayOS;
+using PayOS.Models.Webhooks;
+using PayOS.Models.V2.PaymentRequests;
 
 namespace FooKit.Application.Services
 {
     public class PaymentService : IPaymentService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IVnPayService _vnPayService;
+        private readonly PayOSClient _payOs;
         private readonly ISubscriptionService _subscriptionService;
+        private readonly IConfiguration _configuration;
 
-        public PaymentService(IUnitOfWork unitOfWork, IVnPayService vnPayService, ISubscriptionService subscriptionService)
+        public PaymentService(
+            IUnitOfWork unitOfWork,
+            PayOSClient payOs,
+            ISubscriptionService subscriptionService,
+            IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
-            _vnPayService = vnPayService;
+            _payOs = payOs;
             _subscriptionService = subscriptionService;
+            _configuration = configuration;
         }
 
-        public async Task<string> CreatePaymentAsync(Guid userId, Guid planId, string ipAddress)
+        public async Task<string> CreatePaymentAsync(Guid userId, Guid planId)
         {
-            // Validate that the subscription plan exists
+            // Kiểm tra gói đăng ký có tồn tại không
             var plan = await _unitOfWork.SubscriptionPlans.GetByIdAsync(planId);
             if (plan == null)
-                throw new KeyNotFoundException("Subscription plan not found.");
+                throw new KeyNotFoundException("Không tìm thấy gói đăng ký.");
 
-            // Generate unique transaction reference
-            var transactionRef = DateTime.UtcNow.Ticks.ToString();
+            // Sinh mã đơn hàng duy nhất
+            var orderCode = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
             var payment = new Payment
             {
                 UserId = userId,
                 SubscriptionPlanId = planId,
-                TransactionRef = transactionRef,
+                OrderCode = orderCode,
                 Amount = plan.Price.Amount,
-                OrderInfo = $"Payment for plan: {plan.PlanName}",
+                OrderInfo = $"Thanh toán gói: {plan.PlanName}",
                 Status = PaymentStatus.Pending
             };
 
             await _unitOfWork.Payments.AddAsync(payment);
             await _unitOfWork.SaveChangesAsync();
 
-            // Generate VNPay payment URL
-            var paymentUrl = _vnPayService.CreatePaymentUrl(payment, ipAddress);
+            // Tạo link thanh toán PayOS
+            var returnUrl = _configuration["PAYOS_RETURN_URL"] ?? "http://localhost:3000/payment/result";
+            var cancelUrl = _configuration["PAYOS_CANCEL_URL"] ?? "http://localhost:3000/payment/cancel";
 
-            return paymentUrl;
+            var paymentRequest = new CreatePaymentLinkRequest
+            {
+                OrderCode = orderCode,
+                Amount = (int)payment.Amount,
+                Description = payment.OrderInfo.Length > 25
+                    ? payment.OrderInfo[..25]
+                    : payment.OrderInfo,
+                Items = [new PaymentLinkItem
+                {
+                    Name = plan.PlanName,
+                    Quantity = 1,
+                    Price = (int)plan.Price.Amount
+                }],
+                CancelUrl = cancelUrl,
+                ReturnUrl = returnUrl
+            };
+
+            var createPaymentResult = await _payOs.PaymentRequests.CreateAsync(paymentRequest);
+
+            // Lưu payment link ID để tham chiếu sau này
+            payment.PaymentLinkId = createPaymentResult.PaymentLinkId;
+            _unitOfWork.Payments.Update(payment);
+            await _unitOfWork.SaveChangesAsync();
+
+            return createPaymentResult.CheckoutUrl;
         }
 
-        public async Task<PaymentResultDto> ProcessReturnAsync(IDictionary<string, string> queryParams)
+        public async Task<PaymentResultDto> ProcessReturnAsync(long orderCode)
         {
             var result = new PaymentResultDto();
 
-            // Validate signature
-            if (!_vnPayService.ValidateCallback(queryParams))
-            {
-                result.Success = false;
-                result.Message = "Invalid signature.";
-                return result;
-            }
-
-            var responseCode = _vnPayService.GetResponseCode(queryParams);
-            var transactionRef = queryParams.TryGetValue("vnp_TxnRef", out var txnRefStr) ? txnRefStr : string.Empty;
-
-            var payment = await _unitOfWork.Payments.GetByTransactionRefAsync(transactionRef);
+            var payment = await _unitOfWork.Payments.GetByOrderCodeAsync(orderCode);
             if (payment == null)
             {
                 result.Success = false;
-                result.Message = "Payment not found.";
+                result.Message = "Không tìm thấy thanh toán.";
                 return result;
             }
 
-            result.TransactionRef = transactionRef;
+            if (string.IsNullOrEmpty(payment.PaymentLinkId))
+            {
+                result.Success = false;
+                result.Message = "Thanh toán chưa có PaymentLinkId.";
+                return result;
+            }
 
-            if (responseCode == "00")
+            // Truy vấn PayOS để lấy trạng thái thanh toán mới nhất
+            var paymentInfo = await _payOs.PaymentRequests.GetAsync(payment.PaymentLinkId);
+
+            result.TransactionRef = orderCode.ToString();
+
+            if (paymentInfo.Status.ToString().ToUpper() == "PAID")
             {
                 result.Success = true;
-                result.Message = "Payment successful.";
+                result.Message = "Thanh toán thành công.";
+            }
+            else if (paymentInfo.Status.ToString().ToUpper() == "CANCELLED")
+            {
+                result.Success = false;
+                result.Message = "Thanh toán đã bị hủy.";
             }
             else
             {
                 result.Success = false;
-                result.Message = $"Payment failed. VNPay response code: {responseCode}";
+                result.Message = $"Trạng thái thanh toán: {paymentInfo.Status}";
             }
 
             return result;
         }
 
-        public async Task<VnPayIpnResponse> ProcessIpnAsync(IDictionary<string, string> queryParams)
+        public async Task<PayOsWebhookResponse> ProcessWebhookAsync(Webhook webhookBody)
         {
-            // Validate signature
-            if (!_vnPayService.ValidateCallback(queryParams))
+            WebhookData webhookData;
+            try
             {
-                return new VnPayIpnResponse { RspCode = "97", Message = "Invalid signature" };
+                webhookData = await _payOs.Webhooks.VerifyAsync(webhookBody);
+            }
+            catch (Exception)
+            {
+                return new PayOsWebhookResponse
+                {
+                    Success = false,
+                    Message = "Chữ ký webhook không hợp lệ"
+                };
             }
 
-            var transactionRef = queryParams.TryGetValue("vnp_TxnRef", out var txnRefStr) ? txnRefStr : string.Empty;
-            var responseCode = _vnPayService.GetResponseCode(queryParams);
-            var vnpTransactionNo = queryParams.TryGetValue("vnp_TransactionNo", out var txnNoStr) ? txnNoStr : string.Empty;
-            var bankCode = queryParams.TryGetValue("vnp_BankCode", out var bankCodeStr) ? bankCodeStr : string.Empty;
+            // Test webhook
+            if (webhookData.OrderCode == 123)
+            {
+                return new PayOsWebhookResponse { Success = true, Message = "Test webhook processed" };
+            }
 
-            var payment = await _unitOfWork.Payments.GetByTransactionRefAsync(transactionRef);
+            var payment = await _unitOfWork.Payments.GetByOrderCodeAsync(webhookData.OrderCode);
             if (payment == null)
             {
-                return new VnPayIpnResponse { RspCode = "01", Message = "Order not found" };
+                return new PayOsWebhookResponse
+                {
+                    Success = false,
+                    Message = "Không tìm thấy đơn hàng"
+                };
             }
 
-            // Idempotency check — skip if already processed
             if (payment.Status != PaymentStatus.Pending)
             {
-                return new VnPayIpnResponse { RspCode = "02", Message = "Order already confirmed" };
-            }
-
-            // Verify amount matches (VNPay sends amount * 100)
-            var vnpAmountStr = queryParams.TryGetValue("vnp_Amount", out var amtStr) ? amtStr : "0";
-            var vnpAmount = long.Parse(vnpAmountStr) / 100;
-            if (vnpAmount != (long)payment.Amount)
-            {
-                return new VnPayIpnResponse { RspCode = "04", Message = "Invalid amount" };
-            }
-
-            // Update payment record
-            payment.VnPayTransactionNo = vnpTransactionNo;
-            payment.VnPayResponseCode = responseCode;
-            payment.BankCode = bankCode;
-
-            if (responseCode == "00")
-            {
-                payment.Status = PaymentStatus.Success;
-                payment.PaidAt = DateTime.UtcNow;
-
-                // Activate subscription
-                var plan = await _unitOfWork.SubscriptionPlans.GetByIdAsync(payment.SubscriptionPlanId);
-                if (plan != null)
+                return new PayOsWebhookResponse
                 {
-                    await _subscriptionService.GrantSubscriptionAsync(payment.UserId, plan);
-                }
+                    Success = true,
+                    Message = "Đơn hàng đã được xác nhận trước đó"
+                };
             }
-            else
+
+            if (webhookData.Amount != (int)payment.Amount)
             {
-                payment.Status = responseCode == "24" ? PaymentStatus.Cancelled : PaymentStatus.Failed;
+                return new PayOsWebhookResponse
+                {
+                    Success = false,
+                    Message = "Số tiền không hợp lệ"
+                };
+            }
+
+            payment.PayOsTransactionRef = webhookData.Reference;
+            payment.Status = PaymentStatus.Success;
+            payment.PaidAt = DateTime.UtcNow;
+
+            var plan = await _unitOfWork.SubscriptionPlans.GetByIdAsync(payment.SubscriptionPlanId);
+            if (plan != null)
+            {
+                await _subscriptionService.GrantSubscriptionAsync(payment.UserId, plan);
             }
 
             _unitOfWork.Payments.Update(payment);
             await _unitOfWork.SaveChangesAsync();
 
-            return new VnPayIpnResponse { RspCode = "00", Message = "Confirm Success" };
+            return new PayOsWebhookResponse
+            {
+                Success = true,
+                Message = "Xử lý webhook thành công"
+            };
         }
     }
 }

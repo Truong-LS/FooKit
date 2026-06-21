@@ -5,9 +5,9 @@ namespace FooKit.Application.Interfaces.IRepositories
     public interface IPaymentRepository : IGenericRepository<Payment>
     {
         /// <summary>
-        /// Finds a payment by its unique VNPay transaction reference.
+        /// Finds a payment by its unique PayOS order code.
         /// </summary>
-        Task<Payment?> GetByTransactionRefAsync(string transactionRef);
+        Task<Payment?> GetByOrderCodeAsync(long orderCode);
         Task<IEnumerable<Payment>> GetByUserIdAsync(Guid userId);
     }
 }
