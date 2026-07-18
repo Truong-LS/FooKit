@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using FooKit.Application.Configuration;
+using FooKit.Application.DTOs.DishDtos;
 using FooKit.Application.DTOs.IngredientDtos;
 using FooKit.Application.Interfaces.IServices;
 using FooKit.Domain.Entities;
@@ -149,6 +150,7 @@ namespace FooKit.Infrastructure.ExternalServices
                 }
 
                 _logger.LogDebug("Gemini Response Text: {Text}", aiText);
+                aiText = SanitizeJsonString(aiText);
 
                 var matchResult = JsonSerializer.Deserialize<GeminiMatchResult>(aiText, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 if (matchResult?.Matches != null)
@@ -247,14 +249,9 @@ namespace FooKit.Infrastructure.ExternalServices
             public string StandardIngredientId { get; set; } = string.Empty;
         }
 
-        private class GeminiRecipeResult
-        {
-            [JsonPropertyName("steps")]
-            public List<string>? Steps { get; set; }
-        }
         #endregion
 
-        public async Task<List<string>> GenerateRecipeAsync(string dishName, List<string> ingredients)
+        public async Task<AiGeneratedRecipeDto> GenerateRecipeAsync(string dishName, List<string> ingredients)
         {
             try
             {
@@ -268,7 +265,7 @@ namespace FooKit.Infrastructure.ExternalServices
                 if (string.IsNullOrWhiteSpace(apiKey))
                 {
                     _logger.LogError("Gemini API key is not configured. Cannot generate recipe.");
-                    return new List<string>();
+                    return new AiGeneratedRecipeDto();
                 }
 
                 var requestUrl = $"{baseUrl}/v1beta/models/{model}:generateContent?key={apiKey}";
@@ -288,12 +285,29 @@ namespace FooKit.Infrastructure.ExternalServices
                 promptBuilder.AppendLine("- Bao gồm thời gian nấu ước tính nếu cần");
                 promptBuilder.AppendLine("- Từ 4 đến 8 bước");
                 promptBuilder.AppendLine();
-                promptBuilder.AppendLine("Output CHỈ là một JSON object theo schema sau:");
+                promptBuilder.AppendLine("Output CHỈ là một JSON object theo schema sau (schema tôi gửi chỉ là forrmat không sử dụng như dữ liệu đầu ra) (lưu ý: calories tính theo kcal, các thuộc tính nutrition tính theo gram, cookingTimeMinutes tính bằng phút):");
                 promptBuilder.AppendLine("{");
+                promptBuilder.AppendLine("  \"description\": \"string (mô tả ngắn ngọn, hấp dẫn về món ăn)\",");
+                promptBuilder.AppendLine("  \"cookingTimeMinutes\": 30,");
+                promptBuilder.AppendLine("  \"servings\": 2,");
+                promptBuilder.AppendLine("  \"calories\": 350,");
+                promptBuilder.AppendLine("  \"difficulty\": \"Dễ/Trung bình/Khó\",");
+                promptBuilder.AppendLine("  \"categories\": [\"Món Việt\", \"Bữa chính\"],");
+                promptBuilder.AppendLine("  \"tools\": [\"Nồi\", \"Chảo\"],");
+                promptBuilder.AppendLine("  \"nutrition\": {");
+                promptBuilder.AppendLine("    \"protein\": 25,");
+                promptBuilder.AppendLine("    \"carbs\": 40,");
+                promptBuilder.AppendLine("    \"fat\": 12,");
+                promptBuilder.AppendLine("    \"fiber\": 5");
+                promptBuilder.AppendLine("  },");
                 promptBuilder.AppendLine("  \"steps\": [");
                 promptBuilder.AppendLine("    \"Bước 1: ...\",");
                 promptBuilder.AppendLine("    \"Bước 2: ...\"");
-                promptBuilder.AppendLine("  ]");
+                promptBuilder.AppendLine("  ],");
+                promptBuilder.AppendLine("  \"ingredientQuantities\": {");
+                promptBuilder.AppendLine("    \"tên nguyên liệu 1\": { \"quantity\": 100, \"unit\": \"g\" },");
+                promptBuilder.AppendLine("    \"tên nguyên liệu 2\": { \"quantity\": 10, \"unit\": \"ml\" }");
+                promptBuilder.AppendLine("  }");
                 promptBuilder.AppendLine("}");
 
                 var requestPayload = new GeminiRequest
@@ -330,7 +344,7 @@ namespace FooKit.Infrastructure.ExternalServices
                 {
                     var errorBody = await response.Content.ReadAsStringAsync();
                     _logger.LogError("Gemini API returned error {StatusCode}: {Body}", response.StatusCode, errorBody);
-                    return new List<string>();
+                    return new AiGeneratedRecipeDto();
                 }
 
                 var responseContent = await response.Content.ReadAsStringAsync();
@@ -357,20 +371,40 @@ namespace FooKit.Infrastructure.ExternalServices
                 if (string.IsNullOrWhiteSpace(aiText))
                 {
                     _logger.LogWarning("Gemini API returned an empty AI text for recipe generation of '{DishName}'.", dishName);
-                    return new List<string>();
+                    return new AiGeneratedRecipeDto();
                 }
 
-                var recipeResult = JsonSerializer.Deserialize<GeminiRecipeResult>(aiText, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                var steps = recipeResult?.Steps ?? new List<string>();
+                aiText = SanitizeJsonString(aiText);
+
+                var recipeResult = JsonSerializer.Deserialize<AiGeneratedRecipeDto>(aiText, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 
-                _logger.LogInformation("GenerateRecipeAsync completed for '{DishName}'. Steps count: {Count}", dishName, steps.Count);
-                return steps;
+                _logger.LogInformation("GenerateRecipeAsync completed for '{DishName}'.", dishName);
+                return recipeResult ?? new AiGeneratedRecipeDto();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred in GenerateRecipeAsync for dish '{DishName}': {Message}", dishName, ex.Message);
-                return new List<string>();
+                return new AiGeneratedRecipeDto();
             }
+        }
+
+        private string SanitizeJsonString(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return input;
+            var result = input.Trim();
+            if (result.StartsWith("```json", StringComparison.OrdinalIgnoreCase))
+            {
+                result = result.Substring(7);
+            }
+            else if (result.StartsWith("```", StringComparison.OrdinalIgnoreCase))
+            {
+                result = result.Substring(3);
+            }
+            if (result.EndsWith("```"))
+            {
+                result = result.Substring(0, result.Length - 3);
+            }
+            return result.Trim();
         }
     }
 }

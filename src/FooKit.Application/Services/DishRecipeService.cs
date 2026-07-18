@@ -41,27 +41,52 @@ namespace FooKit.Application.Services
                 : JsonSerializer.Deserialize<List<string>>(dishCache.RawIngredientsJson) ?? new List<string>();
 
             // Check cache first: if InstructionsJson already has data, skip AI call
-            var cachedSteps = new List<string>();
+            var cachedRecipe = new AiGeneratedRecipeDto();
             if (!string.IsNullOrEmpty(dishCache.InstructionsJson) && dishCache.InstructionsJson != "[]")
             {
-                cachedSteps = JsonSerializer.Deserialize<List<string>>(dishCache.InstructionsJson) ?? new List<string>();
+                try
+                {
+                    // For backward compatibility, check if it's an old cache (array of strings)
+                    if (dishCache.InstructionsJson.TrimStart().StartsWith("["))
+                    {
+                        var oldSteps = JsonSerializer.Deserialize<List<string>>(dishCache.InstructionsJson);
+                        cachedRecipe.Steps = oldSteps ?? new List<string>();
+                        // Force a cache miss if we want to regenerate full data, or just use old steps and mock the rest.
+                        // Let's force cache miss by setting cachedRecipe.Steps to empty, so AI regenerates.
+                        cachedRecipe = new AiGeneratedRecipeDto();
+                    }
+                    else
+                    {
+                        cachedRecipe = JsonSerializer.Deserialize<AiGeneratedRecipeDto>(dishCache.InstructionsJson) ?? new AiGeneratedRecipeDto();
+                        // Force cache miss if it's an old partial cache missing the new fields
+                        if (string.IsNullOrWhiteSpace(cachedRecipe.Description) || cachedRecipe.Calories == 0)
+                        {
+                            cachedRecipe = new AiGeneratedRecipeDto();
+                        }
+                    }
+                }
+                catch (JsonException ex)
+                {
+                    _logger.LogWarning(ex, "Failed to deserialize InstructionsJson for dish '{DishName}'. Treating as cache miss. Raw value: {RawValue}", dishCache.Name, dishCache.InstructionsJson);
+                    cachedRecipe = new AiGeneratedRecipeDto();
+                }
             }
 
-            List<string> steps;
-            if (cachedSteps.Any())
+            AiGeneratedRecipeDto recipeData;
+            if (cachedRecipe.Steps != null && cachedRecipe.Steps.Any())
             {
                 _logger.LogInformation("Cache hit for recipe instructions of dish '{DishName}'. Skipping AI call.", dishCache.Name);
-                steps = cachedSteps;
+                recipeData = cachedRecipe;
             }
             else
             {
                 _logger.LogInformation("Cache miss for recipe instructions of dish '{DishName}'. Calling Gemini AI.", dishCache.Name);
-                steps = await _aiMatchingService.GenerateRecipeAsync(dishCache.Name, rawIngredients);
+                recipeData = await _aiMatchingService.GenerateRecipeAsync(dishCache.Name, rawIngredients);
 
                 // Save AI result to DishCache for future use
-                if (steps.Any())
+                if (recipeData.Steps != null && recipeData.Steps.Any())
                 {
-                    dishCache.InstructionsJson = JsonSerializer.Serialize(steps);
+                    dishCache.InstructionsJson = JsonSerializer.Serialize(recipeData);
                     await _unitOfWork.SaveChangesAsync();
                     _logger.LogInformation("Cached AI-generated recipe for dish '{DishName}'.", dishCache.Name);
                 }
@@ -84,11 +109,56 @@ namespace FooKit.Application.Services
 
             return new DishRecipeDetailDto
             {
-                DishCacheId = dishCache.Id,
+                DishCacheId = dishCache.Id.ToString(),
                 DishName = dishCache.Name,
                 ImageUrl = dishCache.ImageUrl,
-                CookingSteps = steps,
-                Ingredients = dishDto.Ingredients,
+                Description = string.IsNullOrWhiteSpace(recipeData.Description) ? "Món ăn hấp dẫn, dễ thực hiện." : recipeData.Description,
+                CookingTimeMinutes = recipeData.CookingTimeMinutes > 0 ? recipeData.CookingTimeMinutes : 30,
+                Servings = recipeData.Servings > 0 ? recipeData.Servings : 2,
+                Calories = recipeData.Calories > 0 ? recipeData.Calories : 350,
+                Difficulty = string.IsNullOrWhiteSpace(recipeData.Difficulty) ? "Dễ" : recipeData.Difficulty,
+                Categories = (recipeData.Categories != null && recipeData.Categories.Any()) ? recipeData.Categories : new List<string> { "Món Việt", "Bữa chính" },
+                Tools = (recipeData.Tools != null && recipeData.Tools.Any()) ? recipeData.Tools : new List<string> { "Nồi", "Chảo", "Dao", "Thớt" },
+                Nutrition = new NutritionDto
+                {
+                    Protein = recipeData.Nutrition?.Protein ?? 25,
+                    Carbs = recipeData.Nutrition?.Carbs ?? 40,
+                    Fat = recipeData.Nutrition?.Fat ?? 12,
+                    Fiber = recipeData.Nutrition?.Fiber ?? 5
+                },
+                CookingSteps = recipeData.Steps ?? new List<string>(),
+                Ingredients = dishDto.Ingredients.Select(i => 
+                {
+                    decimal qty = 0;
+                    string unit = "none";
+                    
+                    if (recipeData.IngredientQuantities != null)
+                    {
+                        var aiIngredientInfo = recipeData.IngredientQuantities.FirstOrDefault(iq => 
+                            iq.Key.Equals(i.RawEnglishName, StringComparison.OrdinalIgnoreCase) || 
+                            i.RawEnglishName.Contains(iq.Key, StringComparison.OrdinalIgnoreCase) ||
+                            iq.Key.Contains(i.StandardIngredientName, StringComparison.OrdinalIgnoreCase));
+                            
+                        if (aiIngredientInfo.Key != null && aiIngredientInfo.Value != null)
+                        {
+                            qty = aiIngredientInfo.Value.Quantity;
+                            unit = aiIngredientInfo.Value.Unit;
+                        }
+                    }
+
+                    return new DishRecipeIngredientDto
+                    {
+                        RawIngredientName = i.RawEnglishName,
+                        StandardIngredientId = mappedIngredientsLookup.TryGetValue(i.RawEnglishName, out var id) && id.HasValue ? id.Value.ToString() : string.Empty,
+                        StandardIngredientName = i.StandardIngredientName,
+                        Quantity = qty,
+                        Unit = unit,
+                        IsMatched = i.IsMapped,
+                        IsPriced = i.AffiliateProduct != null,
+                        AffiliateUrl = i.AffiliateProduct?.ProductUrl ?? string.Empty,
+                        EstimatedPrice = i.AffiliateProduct?.Price ?? 0
+                    };
+                }).ToList(),
                 TotalCost = dishDto.TotalCost
             };
         }
