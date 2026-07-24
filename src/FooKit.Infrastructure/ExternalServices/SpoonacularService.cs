@@ -49,7 +49,8 @@ namespace FooKit.Infrastructure.ExternalServices
                     $"number={limit}",
                     $"offset={offset}",
                     "fillIngredients=true",
-                    "addRecipeInformation=true"
+                    "addRecipeInformation=true",
+                    "addRecipeNutrition=true"
                 };
 
                 if (!string.IsNullOrWhiteSpace(equipment))
@@ -153,11 +154,25 @@ namespace FooKit.Infrastructure.ExternalServices
                         }
                     }
 
+                    int calories = 0;
+                    if (recipe.Nutrition?.Nutrients != null)
+                    {
+                        var calNutrient = recipe.Nutrition.Nutrients
+                            .FirstOrDefault(n => n.Name.Equals("Calories", StringComparison.OrdinalIgnoreCase));
+                        if (calNutrient != null)
+                        {
+                            calories = (int)Math.Round(calNutrient.Amount);
+                        }
+                    }
+
                     results.Add(new SpoonacularRecipeDto
                     {
                         SpoonacularId = recipe.Id,
                         Title = recipe.Title ?? string.Empty,
                         Image = recipe.Image ?? string.Empty,
+                        ReadyInMinutes = recipe.ReadyInMinutes,
+                        Servings = recipe.Servings,
+                        Calories = calories,
                         Instructions = string.Join("\n", stepsList),
                         RawIngredients = rawIngredients.Distinct().ToList(),
                         Diets = recipe.Diets ?? new List<string>(),
@@ -207,6 +222,15 @@ namespace FooKit.Infrastructure.ExternalServices
             [JsonPropertyName("image")]
             public string? Image { get; set; }
 
+            [JsonPropertyName("readyInMinutes")]
+            public int ReadyInMinutes { get; set; }
+
+            [JsonPropertyName("servings")]
+            public int Servings { get; set; }
+
+            [JsonPropertyName("nutrition")]
+            public SpoonacularNutrition? Nutrition { get; set; }
+
             [JsonPropertyName("diets")]
             public List<string>? Diets { get; set; }
 
@@ -245,6 +269,24 @@ namespace FooKit.Infrastructure.ExternalServices
 
             [JsonPropertyName("step")]
             public string StepText { get; set; } = string.Empty;
+        }
+
+        private class SpoonacularNutrition
+        {
+            [JsonPropertyName("nutrients")]
+            public List<SpoonacularNutrient>? Nutrients { get; set; }
+        }
+
+        private class SpoonacularNutrient
+        {
+            [JsonPropertyName("name")]
+            public string Name { get; set; } = string.Empty;
+
+            [JsonPropertyName("amount")]
+            public double Amount { get; set; }
+
+            [JsonPropertyName("unit")]
+            public string Unit { get; set; } = string.Empty;
         }
         #endregion
 

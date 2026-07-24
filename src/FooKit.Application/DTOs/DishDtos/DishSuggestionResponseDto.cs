@@ -10,11 +10,16 @@ namespace FooKit.Application.DTOs.DishDtos
 
     public class SuggestedDishDto
     {
-        public Guid? DishCacheId { get; set; }
+        public string DishCacheId { get; set; } = string.Empty;
         public string DishName { get; set; } = string.Empty;
         public string ImageUrl { get; set; } = string.Empty;
-        public string Instructions { get; set; } = string.Empty;
+        public int CookingTimeMinutes { get; set; }
+        public int Calories { get; set; }
+        public string Difficulty { get; set; } = string.Empty;
+        public int Servings { get; set; }
         public decimal TotalCost { get; set; }
+        public List<string> Categories { get; set; } = new List<string>();
+        public string Instructions { get; set; } = string.Empty;
         public List<SuggestedDishIngredientDto> Ingredients { get; set; } = new List<SuggestedDishIngredientDto>();
     }
 

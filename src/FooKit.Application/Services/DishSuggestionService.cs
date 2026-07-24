@@ -154,6 +154,9 @@ namespace FooKit.Application.Services
                             DietaryTagsJson = JsonSerializer.Serialize(recipe.Diets),
                             RequiredToolsJson = JsonSerializer.Serialize(new List<string> { request.Equipment }),
                             RawIngredientsJson = JsonSerializer.Serialize(recipe.RawIngredients),
+                            ReadyInMinutes = recipe.ReadyInMinutes,
+                            Servings = recipe.Servings > 0 ? recipe.Servings : 2,
+                            Calories = recipe.Calories > 0 ? recipe.Calories : 350,
                             LastFetchedAt = DateTime.UtcNow
                         };
                         await _unitOfWork.DishCaches.AddAsync(dishCache);
@@ -170,7 +173,7 @@ namespace FooKit.Application.Services
                     };
                     await _unitOfWork.SuggestionResults.AddAsync(suggestionResult);
 
-                    dishDto.DishCacheId = dishCache.Id;
+                    dishDto.DishCacheId = dishCache.Id.ToString();
                     suggestedDishes.Add(dishDto);
                 }
 

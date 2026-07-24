@@ -109,11 +109,17 @@ namespace FooKit.Application.Services
                         SpoonacularId = dish.SpoonacularId,
                         Title = dish.Name,
                         Image = dish.ImageUrl,
-                        RawIngredients = rawIngredients
+                        RawIngredients = rawIngredients,
+                        ReadyInMinutes = dish.ReadyInMinutes,
+                        Servings = dish.Servings,
+                        Calories = dish.Calories,
+                        Diets = string.IsNullOrEmpty(dish.DietaryTagsJson)
+                            ? new List<string>()
+                            : JsonSerializer.Deserialize<List<string>>(dish.DietaryTagsJson) ?? new List<string>()
                     };
                     
                     var dto = await DishPricingHelper.CalculateDishPriceAsync(dummyRecipe, mappedIngredientsLookup, allStandardIngredients, activeAffiliates);
-                    dto.DishCacheId = dish.Id;
+                    dto.DishCacheId = dish.Id.ToString();
                     response.Dishes.Add(dto);
                 }
                 
@@ -160,11 +166,14 @@ namespace FooKit.Application.Services
                             DietaryTagsJson = JsonSerializer.Serialize(recipe.Diets),
                             RequiredToolsJson = JsonSerializer.Serialize(new List<string> { equipment }),
                             RawIngredientsJson = JsonSerializer.Serialize(recipe.RawIngredients),
+                            ReadyInMinutes = recipe.ReadyInMinutes,
+                            Servings = recipe.Servings > 0 ? recipe.Servings : 2,
+                            Calories = recipe.Calories > 0 ? recipe.Calories : 350,
                             LastFetchedAt = DateTime.UtcNow
                         };
                         await _unitOfWork.DishCaches.AddAsync(dishCache);
                     }
-                    dishDto.DishCacheId = dishCache.Id;
+                    dishDto.DishCacheId = dishCache.Id.ToString();
 
                     response.Dishes.Add(dishDto);
                 }

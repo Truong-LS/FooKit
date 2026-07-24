@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 using FooKit.Application.DTOs.UserDtos;
 using FooKit.Application.Interfaces.IRepositories;
 using FooKit.Application.Interfaces.IServices;
@@ -13,12 +14,14 @@ namespace FooKit.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IImageService _imageService;
         private readonly AutoMapper.IMapper _mapper;
+        private readonly IMemoryCache _memoryCache;
 
-        public UserService(IUnitOfWork unitOfWork, IImageService imageService, AutoMapper.IMapper mapper)
+        public UserService(IUnitOfWork unitOfWork, IImageService imageService, AutoMapper.IMapper mapper, IMemoryCache memoryCache)
         {
             _unitOfWork = unitOfWork;
             _imageService = imageService;
             _mapper = mapper;
+            _memoryCache = memoryCache;
         }
 
         public async Task<bool> ChangePasswordAsync(Guid userId, ChangePasswordRequest request)
@@ -128,6 +131,11 @@ namespace FooKit.Application.Services
             }
 
             await _unitOfWork.SaveChangesAsync();
+
+            // Invalidate homepage suggestions cache để gợi ý mới phản ánh dietary profile mới
+            _memoryCache.Remove($"HomepageCache:User_{userId}_breakfast");
+            _memoryCache.Remove($"HomepageCache:User_{userId}_lunch");
+            _memoryCache.Remove($"HomepageCache:User_{userId}_dinner");
         }
     }
 }

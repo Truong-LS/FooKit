@@ -14,6 +14,9 @@ namespace FooKit.Domain.Entities
         public string RequiredToolsJson { get; set; } = "[]";
         public string RawIngredientsJson { get; set; } = "[]";
         public string InstructionsJson { get; set; } = "[]";
+        public int ReadyInMinutes { get; set; } = 30;
+        public int Servings { get; set; } = 2;
+        public int Calories { get; set; } = 350;
         public DateTime LastFetchedAt { get; set; }
 
         public virtual ICollection<SuggestionResult> SuggestionResults { get; set; } = new List<SuggestionResult>();

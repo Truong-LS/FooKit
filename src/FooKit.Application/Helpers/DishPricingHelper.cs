@@ -153,12 +153,53 @@ namespace FooKit.Application.Helpers
                 suggestedIngredients.Add(ingredientDto);
             }
 
+            // Cooking time
+            var cookingTime = recipe.ReadyInMinutes > 0 ? recipe.ReadyInMinutes : 30;
+
+            // Calories
+            var calories = recipe.Calories > 0 ? recipe.Calories : 350;
+
+            // Difficulty
+            var difficulty = cookingTime switch
+            {
+                <= 15 => "Rất dễ",
+                <= 30 => "Dễ",
+                <= 60 => "Trung bình",
+                _ => "Khó"
+            };
+
+            // Servings
+            var servings = recipe.Servings > 0 ? recipe.Servings : 2;
+
+            // Categories
+            var categories = new List<string>();
+            if (recipe.Diets != null && recipe.Diets.Any())
+            {
+                categories.AddRange(recipe.Diets.Take(2).Select(d => d.ToLower() switch
+                {
+                    "vegan" => "Thuần chay",
+                    "vegetarian" => "Chay",
+                    "gluten free" => "Không gluten",
+                    "dairy free" => "Không sữa",
+                    "ketogenic" => "Keto",
+                    "paleo" => "Paleo",
+                    "whole30" => "Eat Clean",
+                    _ => char.ToUpper(d[0]) + d.Substring(1)
+                }));
+            }
+            if (!categories.Any()) categories.Add("Món Âu");
+
             return new SuggestedDishDto
             {
                 DishName = recipe.Title,
                 ImageUrl = recipe.Image,
-                Instructions = recipe.Instructions,
+                CookingTimeMinutes = cookingTime,
+                Calories = calories,
+                Difficulty = difficulty,
+                Servings = servings,
                 TotalCost = recipeTotalCost,
+                Categories = categories,
+                Instructions = recipe.Instructions,
                 Ingredients = suggestedIngredients
             };
         }
