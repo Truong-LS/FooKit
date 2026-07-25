@@ -29,6 +29,7 @@ namespace FooKit.Application.DTOs.DishDtos
         public string StandardIngredientName { get; set; } = string.Empty;
         public bool IsMapped { get; set; }
         public SuggestedAffiliateProductDto? AffiliateProduct { get; set; }
+        public decimal EstimatedPrice { get; set; }
     }
 
     public class SuggestedAffiliateProductDto

@@ -98,7 +98,7 @@ namespace FooKit.Application.Services
                 
                 var mappedIngredientsLookup = await DishPricingHelper.GetOrMatchIngredientsAsync(_unitOfWork, _aiMatchingService, _logger, allRawIngredients);
                 var allStandardIngredients = (await _unitOfWork.StandardIngredients.GetAllAsync()).ToDictionary(si => si.Id, si => si);
-                var activeAffiliates = (await _unitOfWork.AffiliateProducts.FindAsync(ap => ap.IsActive)).ToList();
+                // var activeAffiliates = (await _unitOfWork.AffiliateProducts.FindAsync(ap => ap.IsActive)).ToList();
 
                 foreach (var dish in popularDishes)
                 {
@@ -118,7 +118,7 @@ namespace FooKit.Application.Services
                             : JsonSerializer.Deserialize<List<string>>(dish.DietaryTagsJson) ?? new List<string>()
                     };
                     
-                    var dto = await DishPricingHelper.CalculateDishPriceAsync(dummyRecipe, mappedIngredientsLookup, allStandardIngredients, activeAffiliates);
+                    var dto = await DishPricingHelper.CalculateDishPriceFromDbAsync(dummyRecipe, mappedIngredientsLookup, allStandardIngredients);
                     dto.DishCacheId = dish.Id.ToString();
                     response.Dishes.Add(dto);
                 }
@@ -146,11 +146,11 @@ namespace FooKit.Application.Services
                 var allRawIngredients = recipes.SelectMany(r => r.RawIngredients).Distinct().ToList();
                 var mappedIngredientsLookup = await DishPricingHelper.GetOrMatchIngredientsAsync(_unitOfWork, _aiMatchingService, _logger, allRawIngredients);
                 var allStandardIngredients = (await _unitOfWork.StandardIngredients.GetAllAsync()).ToDictionary(si => si.Id, si => si);
-                var activeAffiliates = (await _unitOfWork.AffiliateProducts.FindAsync(ap => ap.IsActive)).ToList();
+                // var activeAffiliates = (await _unitOfWork.AffiliateProducts.FindAsync(ap => ap.IsActive)).ToList();
 
                 foreach (var recipe in recipes)
                 {
-                    var dishDto = await DishPricingHelper.CalculateDishPriceAsync(recipe, mappedIngredientsLookup, allStandardIngredients, activeAffiliates);
+                    var dishDto = await DishPricingHelper.CalculateDishPriceFromDbAsync(recipe, mappedIngredientsLookup, allStandardIngredients);
                     
                     var externalId = recipe.Title.GetHashCode().ToString();
                     var dishCache = (await _unitOfWork.DishCaches.FindAsync(dc => dc.ExternalApiId == externalId)).FirstOrDefault();

@@ -102,7 +102,7 @@ namespace FooKit.Application.Services
             var allStandardIngredients = (await _unitOfWork.StandardIngredients.GetAllAsync()).ToDictionary(si => si.Id, si => si);
 
             // Fetch active affiliate products
-            var activeAffiliates = (await _unitOfWork.AffiliateProducts.FindAsync(ap => ap.IsActive)).ToList();
+            // var activeAffiliates = (await _unitOfWork.AffiliateProducts.FindAsync(ap => ap.IsActive)).ToList();
 
             // Step 4: Budget Calculation & Affiliate Link Binding
             var suggestedDishes = new List<SuggestedDishDto>();
@@ -126,7 +126,7 @@ namespace FooKit.Application.Services
 
                 foreach (var recipe in recipes)
                 {
-                    var dishDto = await DishPricingHelper.CalculateDishPriceAsync(recipe, mappedIngredientsLookup, allStandardIngredients, activeAffiliates);
+                    var dishDto = await DishPricingHelper.CalculateDishPriceFromDbAsync(recipe, mappedIngredientsLookup, allStandardIngredients);
                     var recipeTotalCost = dishDto.TotalCost;
                     var suggestedIngredients = dishDto.Ingredients;
 

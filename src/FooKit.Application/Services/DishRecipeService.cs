@@ -103,9 +103,9 @@ namespace FooKit.Application.Services
 
             var mappedIngredientsLookup = await DishPricingHelper.GetOrMatchIngredientsAsync(_unitOfWork, _aiMatchingService, _logger, rawIngredients);
             var allStandardIngredients = (await _unitOfWork.StandardIngredients.GetAllAsync()).ToDictionary(si => si.Id, si => si);
-            var activeAffiliates = (await _unitOfWork.AffiliateProducts.FindAsync(ap => ap.IsActive)).ToList();
+            // var activeAffiliates = (await _unitOfWork.AffiliateProducts.FindAsync(ap => ap.IsActive)).ToList();
 
-            var dishDto = await DishPricingHelper.CalculateDishPriceAsync(dummyRecipe, mappedIngredientsLookup, allStandardIngredients, activeAffiliates);
+            var dishDto = await DishPricingHelper.CalculateDishPriceFromDbAsync(dummyRecipe, mappedIngredientsLookup, allStandardIngredients);
 
             return new DishRecipeDetailDto
             {
@@ -160,9 +160,9 @@ namespace FooKit.Application.Services
                         Quantity = qty,
                         Unit = unit,
                         IsMatched = i.IsMapped,
-                        IsPriced = i.AffiliateProduct != null,
-                        AffiliateUrl = i.AffiliateProduct?.ProductUrl ?? string.Empty,
-                        EstimatedPrice = i.AffiliateProduct?.Price ?? 0
+                        IsPriced = i.EstimatedPrice > 0,
+                        AffiliateUrl = string.Empty,
+                        EstimatedPrice = i.EstimatedPrice
                     };
                 }).ToList(),
                 TotalCost = dishDto.TotalCost
