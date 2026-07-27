@@ -55,17 +55,17 @@ builder.Services.AddHangfireServer();
 var app = builder.Build();
 
 app.UseMiddleware<RequestLoggingMiddleware>();
+
 app.UseExceptionHandler();
 
-if (app.Environment.IsDevelopment())
+app.MapOpenApi();
+
+app.MapScalarApiReference(options =>
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference(options =>
-    {
-        options.Title = "My .NET 9 API";
-        options.Theme = ScalarTheme.Mars;
-    });
-}
+    options.Title = "My .NET 9 API";
+    options.Theme = ScalarTheme.Mars;
+});
+
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
