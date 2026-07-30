@@ -51,18 +51,13 @@ namespace FooKit.Application.Services
                     {
                         var oldSteps = JsonSerializer.Deserialize<List<string>>(dishCache.InstructionsJson);
                         cachedRecipe.Steps = oldSteps ?? new List<string>();
-                        // Force a cache miss if we want to regenerate full data, or just use old steps and mock the rest.
-                        // Let's force cache miss by setting cachedRecipe.Steps to empty, so AI regenerates.
-                        cachedRecipe = new AiGeneratedRecipeDto();
+                        // Old format only has steps - treat as cache miss so AI regenerates full data
+                        // but keep the old steps as a fallback
+                        _logger.LogInformation("Old format cache detected for dish '{DishName}'. Will regenerate full recipe data.", dishCache.Name);
                     }
                     else
                     {
-                        cachedRecipe = JsonSerializer.Deserialize<AiGeneratedRecipeDto>(dishCache.InstructionsJson) ?? new AiGeneratedRecipeDto();
-                        // Force cache miss if it's an old partial cache missing the new fields
-                        if (string.IsNullOrWhiteSpace(cachedRecipe.Description) || cachedRecipe.Calories == 0)
-                        {
-                            cachedRecipe = new AiGeneratedRecipeDto();
-                        }
+                        cachedRecipe = JsonSerializer.Deserialize<AiGeneratedRecipeDto>(dishCache.InstructionsJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new AiGeneratedRecipeDto();
                     }
                 }
                 catch (JsonException ex)
