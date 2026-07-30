@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -86,6 +88,19 @@ namespace FooKit.Application.Services
                 limit: 5,
                 offset: offset);
                 
+            if ((recipes == null || !recipes.Any()) && offset > 0)
+            {
+                _logger.LogWarning("No recipes found at offset {Offset}. Retrying with offset 0.", offset);
+                recipes = await _spoonacularService.SearchRecipesAsync(
+                    equipment: finalEquipment, 
+                    diet: request.Diet.ToString(), 
+                    intolerances: finalIntolerances, 
+                    cuisine: finalCuisines, 
+                    mealType: currentMealType, 
+                    limit: 5,
+                    offset: 0);
+            }
+
             if (recipes == null || !recipes.Any())
             {
                 _logger.LogWarning("No recipes found from Spoonacular API for equipment: {Equipment}, diet: {Diet}", finalEquipment, request.Diet);
@@ -139,7 +154,7 @@ namespace FooKit.Application.Services
                     }
 
                     // Retrieve or insert DishCache
-                    var externalId = recipe.Title.GetHashCode().ToString(); // Fallback identifier since Spoonacular recipe doesn't store direct ID in DTO
+                    var externalId = GenerateDeterministicId(recipe.Title, recipe.SpoonacularId); // Deterministic fallback identifier
                     var dishCache = (await _unitOfWork.DishCaches.FindAsync(dc => dc.ExternalApiId == externalId)).FirstOrDefault();
 
                     if (dishCache == null)
@@ -189,6 +204,14 @@ namespace FooKit.Application.Services
             {
                 SuggestedDishes = suggestedDishes
             };
+        }
+
+        private static string GenerateDeterministicId(string title, int spoonacularId)
+        {
+            var input = $"{title}_{spoonacularId}";
+            using var sha256 = SHA256.Create();
+            var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
+            return BitConverter.ToString(hashBytes).Replace("-", "").Substring(0, 16).ToLower();
         }
     }
 }

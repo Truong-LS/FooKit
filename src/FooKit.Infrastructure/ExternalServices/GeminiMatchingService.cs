@@ -391,20 +391,16 @@ namespace FooKit.Infrastructure.ExternalServices
         private string SanitizeJsonString(string input)
         {
             if (string.IsNullOrWhiteSpace(input)) return input;
-            var result = input.Trim();
-            if (result.StartsWith("```json", StringComparison.OrdinalIgnoreCase))
+            
+            int startIndex = input.IndexOf('{');
+            int endIndex = input.LastIndexOf('}');
+            
+            if (startIndex >= 0 && endIndex >= startIndex)
             {
-                result = result.Substring(7);
+                return input.Substring(startIndex, endIndex - startIndex + 1);
             }
-            else if (result.StartsWith("```", StringComparison.OrdinalIgnoreCase))
-            {
-                result = result.Substring(3);
-            }
-            if (result.EndsWith("```"))
-            {
-                result = result.Substring(0, result.Length - 3);
-            }
-            return result.Trim();
+            
+            return input.Trim();
         }
     }
 }

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -141,6 +143,12 @@ namespace FooKit.Application.Services
             
             var recipes = await _spoonacularService.SearchRecipesAsync(equipment, string.Empty, intolerances, cuisineParam, mealType, limit: 5, offset: offset);
             
+            if ((recipes == null || !recipes.Any()) && offset > 0)
+            {
+                _logger.LogWarning("No recipes found at offset {Offset}. Retrying with offset 0.", offset);
+                recipes = await _spoonacularService.SearchRecipesAsync(equipment, string.Empty, intolerances, cuisineParam, mealType, limit: 5, offset: 0);
+            }
+            
             if (recipes != null && recipes.Any())
             {
                 var allRawIngredients = recipes.SelectMany(r => r.RawIngredients).Distinct().ToList();
@@ -152,7 +160,7 @@ namespace FooKit.Application.Services
                 {
                     var dishDto = await DishPricingHelper.CalculateDishPriceFromDbAsync(recipe, mappedIngredientsLookup, allStandardIngredients);
                     
-                    var externalId = recipe.Title.GetHashCode().ToString();
+                    var externalId = GenerateDeterministicId(recipe.Title, recipe.SpoonacularId);
                     var dishCache = (await _unitOfWork.DishCaches.FindAsync(dc => dc.ExternalApiId == externalId)).FirstOrDefault();
                     if (dishCache == null)
                     {
@@ -196,6 +204,14 @@ namespace FooKit.Application.Services
 
             _memoryCache.Set($"HomepageCache:User_{userId}_{mealType}", JsonSerializer.Serialize(response), options);
             return Task.CompletedTask;
+        }
+
+        private static string GenerateDeterministicId(string title, int spoonacularId)
+        {
+            var input = $"{title}_{spoonacularId}";
+            using var sha256 = SHA256.Create();
+            var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
+            return BitConverter.ToString(hashBytes).Replace("-", "").Substring(0, 16).ToLower();
         }
     }
 }
