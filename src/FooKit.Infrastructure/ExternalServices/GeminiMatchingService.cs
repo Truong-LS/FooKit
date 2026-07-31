@@ -257,7 +257,7 @@ namespace FooKit.Infrastructure.ExternalServices
             {
                 var apiKey = _options.ApiKey;
                 var baseUrl = _options.BaseUrl.TrimEnd('/');
-                var model = _options.Model;
+var model = _options.Model;
 
                 _logger.LogInformation("GenerateRecipeAsync called. DishName: '{DishName}', Ingredients count: {Count}, Model: {Model}", 
                     dishName, ingredients?.Count ?? 0, model);
@@ -265,9 +265,15 @@ namespace FooKit.Infrastructure.ExternalServices
                 if (string.IsNullOrWhiteSpace(apiKey))
                 {
                     _logger.LogError("Gemini API key is not configured. Cannot generate recipe.");
-                    return new AiGeneratedRecipeDto();
+                    return new AiGeneratedRecipeDto { Description = "Gemini API key is not configured." };
                 }
 
+                // Defensively clean up baseUrl if user accidentally provided the full path in .env
+                if (baseUrl.Contains("/v1beta"))
+                {
+                    baseUrl = baseUrl.Substring(0, baseUrl.IndexOf("/v1beta"));
+                }
+                
                 var requestUrl = $"{baseUrl}/v1beta/models/{model}:generateContent?key={apiKey}";
 
                 var ingredientList = ingredients != null && ingredients.Any() 
@@ -344,7 +350,7 @@ namespace FooKit.Infrastructure.ExternalServices
                 {
                     var errorBody = await response.Content.ReadAsStringAsync();
                     _logger.LogError("Gemini API returned error {StatusCode}: {Body}", response.StatusCode, errorBody);
-                    return new AiGeneratedRecipeDto();
+                    return new AiGeneratedRecipeDto { Description = $"Gemini HTTP Error: {response.StatusCode}. Details: {errorBody}" };
                 }
 
                 var responseContent = await response.Content.ReadAsStringAsync();
@@ -371,12 +377,17 @@ namespace FooKit.Infrastructure.ExternalServices
                 if (string.IsNullOrWhiteSpace(aiText))
                 {
                     _logger.LogWarning("Gemini API returned an empty AI text for recipe generation of '{DishName}'.", dishName);
-                    return new AiGeneratedRecipeDto();
+                    return new AiGeneratedRecipeDto { Description = "Gemini returned empty text response." };
                 }
 
                 aiText = SanitizeJsonString(aiText);
 
-                var recipeResult = JsonSerializer.Deserialize<AiGeneratedRecipeDto>(aiText, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                var options = new JsonSerializerOptions 
+                { 
+                    PropertyNameCaseInsensitive = true,
+                    NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString
+                };
+                var recipeResult = JsonSerializer.Deserialize<AiGeneratedRecipeDto>(aiText, options);
                 
                 _logger.LogInformation("GenerateRecipeAsync completed for '{DishName}'.", dishName);
                 return recipeResult ?? new AiGeneratedRecipeDto();
@@ -384,7 +395,7 @@ namespace FooKit.Infrastructure.ExternalServices
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred in GenerateRecipeAsync for dish '{DishName}': {Message}", dishName, ex.Message);
-                return new AiGeneratedRecipeDto();
+                return new AiGeneratedRecipeDto { Description = $"Exception: {ex.Message} \n {ex.StackTrace}" };
             }
         }
 

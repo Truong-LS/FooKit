@@ -109,13 +109,13 @@ namespace FooKit.Application.Services
                 ImageUrl = dishCache.ImageUrl,
                 Description = string.IsNullOrWhiteSpace(recipeData.Description) ? "Món ăn hấp dẫn, dễ thực hiện." : recipeData.Description,
                 CookingTimeMinutes = recipeData.CookingTimeMinutes > 0
-                    ? recipeData.CookingTimeMinutes
+                    ? recipeData.CookingTimeMinutes.Value
                     : (dishCache.ReadyInMinutes > 0 ? dishCache.ReadyInMinutes : 30),
                 Servings = recipeData.Servings > 0
-                    ? recipeData.Servings
+                    ? recipeData.Servings.Value
                     : (dishCache.Servings > 0 ? dishCache.Servings : 2),
                 Calories = recipeData.Calories > 0
-                    ? recipeData.Calories
+                    ? recipeData.Calories.Value
                     : (dishCache.Calories > 0 ? dishCache.Calories : 350),
                 Difficulty = string.IsNullOrWhiteSpace(recipeData.Difficulty) ? "Dễ" : recipeData.Difficulty,
                 Categories = (recipeData.Categories != null && recipeData.Categories.Any()) ? recipeData.Categories : new List<string> { "Món Việt", "Bữa chính" },
@@ -142,7 +142,7 @@ namespace FooKit.Application.Services
                             
                         if (aiIngredientInfo.Key != null && aiIngredientInfo.Value != null)
                         {
-                            qty = aiIngredientInfo.Value.Quantity;
+                            qty = aiIngredientInfo.Value.Quantity ?? 0m;
                             unit = aiIngredientInfo.Value.Unit;
                         }
                     }
