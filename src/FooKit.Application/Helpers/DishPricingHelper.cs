@@ -23,7 +23,8 @@ namespace FooKit.Application.Helpers
             var lookup = new Dictionary<string, Guid?>(StringComparer.OrdinalIgnoreCase);
 
             var existingDictionaries = (await unitOfWork.IngredientDictionaries.GetAllAsync())
-                .ToDictionary(id => id.RawKeywordFromApi, id => id.StandardIngredientId, StringComparer.OrdinalIgnoreCase);
+                .GroupBy(id => id.RawKeywordFromApi, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First().StandardIngredientId, StringComparer.OrdinalIgnoreCase);
 
             var uncachedRawIngredients = new List<string>();
             var logs = new List<ThirdPartyApiLog>();

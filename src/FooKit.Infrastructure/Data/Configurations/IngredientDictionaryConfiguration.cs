@@ -16,6 +16,9 @@ namespace FooKit.Infrastructure.Data.Configurations
                    .IsRequired()
                    .HasMaxLength(255);
 
+            builder.HasIndex(x => x.RawKeywordFromApi)
+                   .IsUnique();
+
             builder.HasOne(x => x.StandardIngredient)
                    .WithMany(s => s.IngredientDictionaries)
                    .HasForeignKey(x => x.StandardIngredientId)
